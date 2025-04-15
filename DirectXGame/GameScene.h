@@ -30,6 +30,9 @@ class GameScene
 		//カメラ
 	    KamataEngine::Camera camera_;
 
+		// デバッグカメラ
+	    KamataEngine::DebugCamera* debugCamera_=nullptr;
+
 	private:
 
 		uint32_t textureHandle_ = 0; // テクスチャハンドル

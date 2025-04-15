@@ -30,11 +30,15 @@ void GameScene::Initialize() {
 	//ライン描画が参照するカメラを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
 
+	//デバッグカメラの生成
+	debugCamera_ = new DebugCamera(1280, 720);
+
 }
 
 GameScene::~GameScene() { 
 	delete sprite_;
 	delete model_;
+	delete debugCamera_;
 }
 
 void GameScene::Update() {
@@ -55,10 +59,11 @@ void GameScene::Update() {
 	}
 
 	//デモウィンドウの表示を有効化
-
 	#ifdef _DEBUG
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
 	#endif
+
+	debugCamera_->Update();
 
 }
 
@@ -78,13 +83,17 @@ void GameScene::Draw() {
 	// 3Dモデルの描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 
+	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+
 	//3Dモデル描画
-	model_->Draw(worldTransform_, camera_, textureHandle_);
+	//model_->Draw(worldTransform_, camera_, textureHandle_);
 
 	// 3Dモデルの描画後処理
 	Model::PostDraw();
 
 	//ラインを描画
 	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+
+	
 
 }
