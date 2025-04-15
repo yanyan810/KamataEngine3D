@@ -43,6 +43,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//ゲームシーンの描画
 		gameScene->Draw();
 
+		//軸表示の描画
+		AxisIndicator::GetInstance()->Draw();
+
 		//ImGui描画
 		imguiManager->Draw();
 
