@@ -39,6 +39,10 @@ void GameScene::Initialize() {
 	// 軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
+	//自キャラの生成
+	player_ = new Player();
+	//自キャラの初期化
+	player_->Initialize(model_,textureHandle_,&camera_);
 
 }
 
@@ -46,6 +50,7 @@ GameScene::~GameScene() {
 	delete sprite_;
 	delete model_;
 	delete debugCamera_;
+	delete player_;
 }
 
 void GameScene::Update() {
@@ -72,6 +77,8 @@ void GameScene::Update() {
 
 	debugCamera_->Update();
 
+	player_->Updata();
+
 }
 
 void GameScene::Draw() {
@@ -90,16 +97,19 @@ void GameScene::Draw() {
 	// 3Dモデルの描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+	//model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
 
 	//3Dモデル描画
 	//model_->Draw(worldTransform_, camera_, textureHandle_);
+
+	// 自キャラの描画
+	player_->Draw();
 
 	// 3Dモデルの描画後処理
 	Model::PostDraw();
 
 	//ラインを描画
-	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 
 	
 
