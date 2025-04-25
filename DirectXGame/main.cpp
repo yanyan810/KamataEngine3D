@@ -15,15 +15,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ImGuiManagerインスタンスの取得
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
-	ID3D12Device* device;
-	ID3D12DescriptorHeap* srvHeap;
-	ID3D12GraphicsCommandList* cmdList;
-
 
 	//ゲームシーンのインスタンス生成
 	GameScene* gameScene = new GameScene();
 	// ゲームシーンの初期化
-	gameScene->Initialize(device, srvHeap, cmdList);
+	gameScene->Initialize();
 
 	//メインループ
 	while (true) {
