@@ -23,6 +23,7 @@ class GameScene
 
 		//スプライト
 	    KamataEngine::Sprite* sprite_ = nullptr;
+	    KamataEngine::Sprite* playerSprite_ = nullptr;
 
 		// 3Dモデル
 	    KamataEngine::Model* model_ = nullptr;
@@ -46,6 +47,10 @@ class GameScene
 
 		KamataEngine::Matrix4x4 matrix_;
 
+		KamataEngine::Sprite* maskSprite_=nullptr;
+
+		KamataEngine::Sprite* blackSprite_ = nullptr;
+
 	private:
 
 		uint32_t textureHandle_ = 0; // テクスチャハンドル
@@ -59,5 +64,9 @@ class GameScene
 		//Matrix4x4 viewMatrix;
 
 		bool isDebugCameraActive_ = false;
+
+		uint32_t bowserMaskTextureHandle_ = 0;//マスク画像
+	    float maskFadeRate_ = 1.5f;
+	    bool isGameOverFade_ = false;
 
 };
