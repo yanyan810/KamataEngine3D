@@ -8,18 +8,22 @@ using namespace KamataEngine;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 	//エンジンの初期化
-	KamataEngine::Initialize(L"LE2B_25_ミヤザワ_ハルヒ_AL3");
+	KamataEngine::Initialize(L"LE2B_25_ミヤザワ_ハルヒ_TR");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	//ImGuiManagerインスタンスの取得
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
+	ID3D12Device* device;
+	ID3D12DescriptorHeap* srvHeap;
+	ID3D12GraphicsCommandList* cmdList;
+
 
 	//ゲームシーンのインスタンス生成
 	GameScene* gameScene = new GameScene();
 	// ゲームシーンの初期化
-	gameScene->Initialize();
+	gameScene->Initialize(device, srvHeap, cmdList);
 
 	//メインループ
 	while (true) {
