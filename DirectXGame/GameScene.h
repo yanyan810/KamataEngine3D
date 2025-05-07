@@ -4,6 +4,7 @@
 #include <vector>
 #include "Matrix4x4.h"
 
+
 //ゲームシーン
 class GameScene
 {
@@ -47,7 +48,9 @@ class GameScene
 
 		KamataEngine::Matrix4x4 matrix_;
 
-		KamataEngine::Sprite* maskSprite_=nullptr;
+		KamataEngine::Sprite* maskSprite1_=nullptr;
+
+		KamataEngine::Sprite* maskSprite2_ = nullptr;
 
 		KamataEngine::Sprite* blackSprite_ = nullptr;
 
@@ -61,11 +64,13 @@ class GameScene
 
 		float inputFloat3[3] = {0.0f, 0.0f, 0.0f}; // ImGui用のfloat配列
 
+		int imageIndex = 0;
+
 		//Matrix4x4 viewMatrix;
 
 		bool isDebugCameraActive_ = false;
 
-		uint32_t bowserMaskTextureHandle_ = 0;//マスク画像
+		uint32_t bowserMaskTextureHandle_[10]; // マスク画像
 	    float maskFadeRate_ = 1.5f;
 	    bool isGameOverFade_ = false;
 

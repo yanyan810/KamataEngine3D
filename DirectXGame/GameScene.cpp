@@ -1,9 +1,7 @@
 #include "GameScene.h"
-// #include "PrimitiveDrawer.h"
 #include <DirectXTex.h>
-#include <wrl.h>
 #include <d3dx12.h>
-
+#include <wrl.h>
 
 using namespace KamataEngine;
 
@@ -176,8 +174,12 @@ void GameScene::Initialize() {
 	}
 	modelBlock_ = Model::Create();
 
-	bowserMaskTextureHandle_ = TextureManager::Load("bowserMask.png");
-	maskSprite_ = Sprite::Create(bowserMaskTextureHandle_, {640, 360}, {1, 1, 1, 0.0f}, {0.5f, 0.5f});
+	imageIndex = 0;
+
+	bowserMaskTextureHandle_[0] = TextureManager::Load("bowserMask.png");
+	bowserMaskTextureHandle_[1] = TextureManager::Load("bowserMask2.png");
+	bowserMaskTextureHandle_[2] = TextureManager::Load("bowserMask3.png");
+	
 
 	// 黒背景テクスチャの読み込み
 	uint32_t blackTextureHandle = TextureManager::Load("black.png");
@@ -185,8 +187,7 @@ void GameScene::Initialize() {
 	// 黒背景スプライト生成（中心座標は画面中央に）
 	blackSprite_ = Sprite::Create(blackTextureHandle, {0, 0});
 
-	playerSprite_ = Sprite::Create(textureHandle_, {32,32});
-
+	playerSprite_ = Sprite::Create(textureHandle_, {32, 32});
 }
 
 GameScene::~GameScene() {
@@ -203,7 +204,8 @@ GameScene::~GameScene() {
 		}
 	}
 	worldTransformBlocks_.clear();
-	delete maskSprite_;
+	delete maskSprite1_;
+	delete maskSprite2_;
 }
 
 void GameScene::Update() {
@@ -262,6 +264,23 @@ void GameScene::Update() {
 		camera_.UpdateMatrix();
 	}
 
+	if (Input::GetInstance()->TriggerKey(DIK_UP)) {
+		imageIndex++;
+	}
+
+	if (Input::GetInstance()->TriggerKey(DIK_DOWN)) {
+		imageIndex--;
+	}
+
+	if (imageIndex > 2) {
+		imageIndex = 0;
+	}
+	if (imageIndex < 0) {
+		imageIndex = 9;
+	}
+
+	maskSprite1_ = Sprite::Create(bowserMaskTextureHandle_[imageIndex], {640, 360}, {1, 1, 1, 0.0f}, {0.5f, 0.5f});
+
 	if (Input::GetInstance()->TriggerKey(DIK_G)) {
 		isGameOverFade_ = true; // テスト用
 		maskFadeRate_ = 2.0f;
@@ -269,7 +288,7 @@ void GameScene::Update() {
 
 	if (isGameOverFade_) {
 
-		maskFadeRate_ -= 0.01f;
+		maskFadeRate_ -= 0.05f;
 		if (maskFadeRate_ <= 0.0f) {
 			maskFadeRate_ = 0.0f;
 		}
@@ -279,52 +298,46 @@ void GameScene::Update() {
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	Model::PostDraw();
-
-		// --- ② スプライト（マスク演出） ---
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
-
-	
-
-	if (isGameOverFade_) {
-		
-		blackSprite_->SetSize({1280, 720});
-		blackSprite_->SetColor({1, 1, 1, 1}); // 通常の黒色
-		blackSprite_->Draw();
-
-	}
-
-	playerSprite_->Draw();
-
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
-
-		// --- ① まず 3D ゲーム内容を描画 ---
+	// --- ① まず 3D ゲーム内容を描画 ---
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	// 自キャラ描画
 	player_->Draw();
 
+	Model::PostDraw();
+
 	// ブロックなどの描画（必要なら）
 	// for (...) modelBlock_->Draw(...);
 
-	
+	// --- ② スプライト（マスク演出） ---
+	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
 
+	playerSprite_->Draw();
 
 	// 画面を真っ黒に塗りつぶす（黒背景）
 
 	if (isGameOverFade_) {
-		
-		// --- 黒背景をまず描画（拡大して画面全体を覆う） ---
-		
 
-		// --- 次に白丸マスクをMultiplyで描画 ---
-		float scale = 1024.0f * maskFadeRate_;
-		maskSprite_->SetSize({scale, scale});
+		// --- 黒背景をまず描画（拡大して画面全体を覆う） ---
+	
+		// 1枚目のマスク
+		float scale1 = 25000.0f * maskFadeRate_;
+		// スケールが小さくなったら2枚目を追加で描画
+		Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kMultiply);
+
+		float scale2 = 1280.0f + scale1;
+		maskSprite1_->SetSize({scale2, scale2});
+		maskSprite1_->Draw();
+
+		if (maskFadeRate_ < 0.05f) {
+
+			 blackSprite_->SetSize({1280, 720});
+			 blackSprite_->SetColor({1, 1, 1, 1}); // 通常の黒色
+			 blackSprite_->Draw();
+
+		}
+
 	}
-	maskSprite_->SetColor({1, 1, 1, 1});
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kMultiply);
-	maskSprite_->Draw();
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
 
 	Sprite::PostDraw();
 }
