@@ -318,17 +318,17 @@ void GameScene::Draw() {
 
 	if (isGameOverFade_) {
 
-		// --- 黒背景をまず描画（拡大して画面全体を覆う） ---
-	
-		// 1枚目のマスク
-		float scale1 = 25000.0f * maskFadeRate_;
 		// スケールが小さくなったら2枚目を追加で描画
 		Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kMultiply);
+		//画像を拡大
+		float scale1 = 25000.0f * maskFadeRate_;
 
+		//拡大した画像と画像のサイズを足す
 		float scale2 = 1280.0f + scale1;
 		maskSprite1_->SetSize({scale2, scale2});
 		maskSprite1_->Draw();
 
+		//マスク画像が一定の沖差になったら黒画像を置く
 		if (maskFadeRate_ < 0.05f) {
 
 			 blackSprite_->SetSize({1280, 720});
