@@ -1,7 +1,7 @@
 // Matrix4x4_.h
 #pragma once
 #include "KamataEngine.h"
-#include "Vector3.h"
+#include "Matrix4x4.h"
 #include <cmath>
 namespace KamataEngine {
 class Matrix4x4_ {
