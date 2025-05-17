@@ -1,72 +1,70 @@
 #pragma once
 #include "KamataEngine.h"
-#include "Player.h"
-#include <vector>
 #include "Matrix4x4.h"
+#include "Player.h"
+#include "Skydome.h"
+#include <vector>
 
-//ゲームシーン
-class GameScene
-{
+// ゲームシーン
+class GameScene {
 
-	public:
-		//初期化
-	    void Initialize();
+public:
+	// 初期化
+	void Initialize();
 
-		//デストラクタ
-	    ~GameScene();
+	// デストラクタ
+	~GameScene();
 
-		// 更新
-	    void Update();
+	// 更新
+	void Update();
 
-		// 描画
-		void Draw();
+	// 描画
+	void Draw();
 
-		//スプライト
-	    KamataEngine::Sprite* sprite_ = nullptr;
-	    KamataEngine::Sprite* playerSprite_ = nullptr;
+	// スプライト
+	KamataEngine::Sprite* sprite_ = nullptr;
+	KamataEngine::Sprite* playerSprite_ = nullptr;
 
-		// 3Dモデル
-	    KamataEngine::Model* model_ = nullptr;
+	// 3Dモデル
+	KamataEngine::Model* model_ = nullptr;
 
-		//ブロックモデル
-	    KamataEngine::Model* modelBlock_ = nullptr;
-	    ;
+	// ブロックモデル
+	KamataEngine::Model* modelBlock_ = nullptr;
+	;
 
-		// ワールドトランスフォーム
-	    KamataEngine::WorldTransform worldTransform_;
+	// ワールドトランスフォーム
+	KamataEngine::WorldTransform worldTransform_;
 
-		//カメラ
-	    KamataEngine::Camera camera_;
+	// カメラ
+	KamataEngine::Camera camera_;
 
-		// デバッグカメラ
-	    KamataEngine::DebugCamera* debugCamera_=nullptr;
+	// デバッグカメラ
+	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
-		Player* player_=nullptr;
+	Player* player_ = nullptr;
 
-		std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
+	Skydome* skydome_ = nullptr;
 
-		KamataEngine::Matrix4x4 matrix_;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 
-		KamataEngine::Sprite* maskSprite_=nullptr;
+	KamataEngine::Matrix4x4 matrix_;
 
-		KamataEngine::Sprite* blackSprite_ = nullptr;
+	KamataEngine::Sprite* maskSprite_ = nullptr;
 
-	private:
+	KamataEngine::Sprite* blackSprite_ = nullptr;
 
-		uint32_t textureHandle_ = 0; // テクスチャハンドル
+	KamataEngine::Model* modelSkydome_ = nullptr;
 
-		uint32_t soundDataHandle_ = 0; // サウンドデータハンドル
+private:
+	uint32_t textureHandle_ = 0; // テクスチャハンドル
 
-		uint32_t voiceHandle_ = 0; // 音声ハンドル
+	uint32_t soundDataHandle_ = 0; // サウンドデータハンドル
 
-		float inputFloat3[3] = {0.0f, 0.0f, 0.0f}; // ImGui用のfloat配列
+	uint32_t voiceHandle_ = 0; // 音声ハンドル
 
-		//Matrix4x4 viewMatrix;
+	float inputFloat3[3] = {0.0f, 0.0f, 0.0f}; // ImGui用のfloat配列
 
-		bool isDebugCameraActive_ = false;
+	// Matrix4x4 viewMatrix;
 
-		uint32_t bowserMaskTextureHandle_ = 0;//マスク画像
-	    float maskFadeRate_ = 1.5f;
-	    bool isGameOverFade_ = false;
-
+	bool isDebugCameraActive_ = false;
 };

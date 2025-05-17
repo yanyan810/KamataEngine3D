@@ -171,6 +171,14 @@ void GameScene::Initialize() {
 		}
 	}
 	modelBlock_ = Model::Create();
+
+	modelSkydome_ = Model::CreateFromOBJ("Wavefront", true);
+	
+	// 天球の生成
+	skydome_ = new Skydome();
+	// 天球の初期化
+	skydome_->Initialize(modelSkydome_, &camera_);
+
 }
 
 GameScene::~GameScene() {
@@ -179,6 +187,7 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
 	delete modelBlock_;
+	delete modelSkydome_;
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 
@@ -202,7 +211,7 @@ void GameScene::Update() {
 
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 		// 音声再生
-		Audio::GetInstance()->StopWave(soundDataHandle_);
+	//	Audio::GetInstance()->StopWave(soundDataHandle_);
 	}
 
 // デモウィンドウの表示を有効化
@@ -243,6 +252,11 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の更新と転送
 		camera_.UpdateMatrix();
 	}
+
+	//天球の処理
+	skydome_->Update();
+
+
 }
 
 void GameScene::Draw() {
@@ -276,6 +290,9 @@ void GameScene::Draw() {
 	}
 	// 自キャラの描画
 	player_->Draw();
+
+	// === Skydome描画（背景） ===
+	skydome_->Draw();
 
 	// 3Dモデルの描画後処理
 	Model::PostDraw();
