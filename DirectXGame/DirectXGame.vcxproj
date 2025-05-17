@@ -109,9 +109,10 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
-    <ClCompile Include="Matrix4x4.cpp" />
+    <ClCompile Include="Matrix4x4_.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="WorldTransformClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
@@ -191,9 +192,10 @@
   <ItemGroup>
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="MapChipFiled.h" />
-    <ClInclude Include="Matrix4x4.h" />
+    <ClInclude Include="Matrix4x4_.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Skydome.h" />
+    <ClInclude Include="WorldTransformClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

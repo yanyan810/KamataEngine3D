@@ -1,5 +1,5 @@
 // Matrix4x4_.cpp
-#include "Matrix4x4.h"
+#include "Matrix4x4_.h"
 namespace KamataEngine {
 Matrix4x4_::Matrix4x4_() {
 	for (int i = 0; i < 4; ++i)

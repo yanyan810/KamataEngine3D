@@ -1,5 +1,5 @@
 #include "Player.h"
-
+#include "WorldTransformClass.h"
 
 void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera) {
 
@@ -14,8 +14,8 @@ worldTransform_.Initialize();
 }
 
 void Player::Updata() {
-
-	worldTransform_.TransferMatrix();
+	MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	//worldTransform_.TransferMatrix();
 
 }
 
