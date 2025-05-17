@@ -1,9 +1,5 @@
 #include "GameScene.h"
 // #include "PrimitiveDrawer.h"
-#include <DirectXTex.h>
-#include <wrl.h>
-#include <d3dx12.h>
-
 
 using namespace KamataEngine;
 
@@ -121,12 +117,12 @@ void GameScene::Initialize() {
 	camera_.Initialize();
 
 	// サウンドデータの読み込み
-	// soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
+	soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
 
-	//// 音声再生
-	// Audio::GetInstance()->PlayWave(soundDataHandle_);
+	// 音声再生
+	Audio::GetInstance()->PlayWave(soundDataHandle_);
 
-	// voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
+	voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
 
 	// ライン描画が参照するカメラを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
@@ -175,18 +171,6 @@ void GameScene::Initialize() {
 		}
 	}
 	modelBlock_ = Model::Create();
-
-	bowserMaskTextureHandle_ = TextureManager::Load("bowserMask.png");
-	maskSprite_ = Sprite::Create(bowserMaskTextureHandle_, {640, 360}, {1, 1, 1, 0.0f}, {0.5f, 0.5f});
-
-	// 黒背景テクスチャの読み込み
-	uint32_t blackTextureHandle = TextureManager::Load("black.png");
-
-	// 黒背景スプライト生成（中心座標は画面中央に）
-	blackSprite_ = Sprite::Create(blackTextureHandle, {0, 0});
-
-	playerSprite_ = Sprite::Create(textureHandle_, {32,32});
-
 }
 
 GameScene::~GameScene() {
@@ -195,7 +179,6 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
 	delete modelBlock_;
-	delete playerSprite_;
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 
@@ -203,7 +186,6 @@ GameScene::~GameScene() {
 		}
 	}
 	worldTransformBlocks_.clear();
-	delete maskSprite_;
 }
 
 void GameScene::Update() {
@@ -261,70 +243,43 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の更新と転送
 		camera_.UpdateMatrix();
 	}
-
-	if (Input::GetInstance()->TriggerKey(DIK_G)) {
-		isGameOverFade_ = true; // テスト用
-		maskFadeRate_ = 2.0f;
-	}
-
-	if (isGameOverFade_) {
-
-		maskFadeRate_ -= 0.01f;
-		if (maskFadeRate_ <= 0.0f) {
-			maskFadeRate_ = 0.0f;
-		}
-	}
 }
 
 void GameScene::Draw() {
+	// 描画処理
+
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	Model::PostDraw();
+	// スプライト描画前処理
+	Sprite::PreDraw(dxCommon->GetCommandList());
 
-		// --- ② スプライト（マスク演出） ---
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
+	// sprite_->Draw();
 
-	
+	// スプライト描画後処理
+	Sprite::PostDraw();
 
-	if (isGameOverFade_) {
-		
-		blackSprite_->SetSize({1280, 720});
-		blackSprite_->SetColor({1, 1, 1, 1}); // 通常の黒色
-		blackSprite_->Draw();
-
-	}
-
-	playerSprite_->Draw();
-
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
-
-		// --- ① まず 3D ゲーム内容を描画 ---
+	// 3Dモデルの描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// 自キャラ描画
+	// model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+
+	// 3Dモデル描画
+	// model_->Draw(worldTransform_, camera_, textureHandle_);
+
+	// ブロックの描画
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			modelBlock_->Draw(*worldTransformBlock, camera_, textureHandle_);
+		}
+	}
+	// 自キャラの描画
 	player_->Draw();
 
-	// ブロックなどの描画（必要なら）
-	// for (...) modelBlock_->Draw(...);
+	// 3Dモデルの描画後処理
+	Model::PostDraw();
 
-	
-
-
-	// 画面を真っ黒に塗りつぶす（黒背景）
-
-	if (isGameOverFade_) {
-		
-		// --- 黒背景をまず描画（拡大して画面全体を覆う） ---
-		
-
-		// --- 次に白丸マスクをMultiplyで描画 ---
-		float scale = 1024.0f * maskFadeRate_;
-		maskSprite_->SetSize({scale, scale});
-	}
-	maskSprite_->SetColor({1, 1, 1, 1});
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kMultiply);
-	maskSprite_->Draw();
-	Sprite::PreDraw(dxCommon->GetCommandList(), Sprite::BlendMode::kNormal);
-
-	Sprite::PostDraw();
+	// ラインを描画
+	// PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 }
