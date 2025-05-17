@@ -110,6 +110,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Skydome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
@@ -190,6 +191,7 @@
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Skydome.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
