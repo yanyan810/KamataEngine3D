@@ -3,7 +3,7 @@
 
 using namespace KamataEngine;
 
-using KamataEngine::Matrix4x4_;
+// using KamataEngine::Matrix4x4_;
 
 // 3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
@@ -141,44 +141,18 @@ void GameScene::Initialize() {
 	// 自キャラの初期化
 	player_->Initialize(model_, textureHandle_, &camera_);
 
-	// 要素数
-	const uint32_t kNumBlockHorizontal = 20;
-	const uint32_t kNumBlockVirtical = 10;
-	// ブロック1個分の横幅
-	const float kBlockWidth = 2.0f;
-	const float kBlockHeight = 2.0f;
-
-	// 要素数を変更する
-	// 列数を設定(縦方向のブロック数)
-	worldTransformBlocks_.resize(kNumBlockVirtical);
-	for (uint32_t i = 0; i < kNumBlockVirtical; i++) {
-		// 1列の要素数を設定(横方向のブロック数)
-		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-	}
-	// ブロックの生成
-	for (uint32_t i = 0; i < kNumBlockVirtical; i++) {
-		for (uint32_t j = 0; j < kNumBlockHorizontal; j++) {
-
-			if (i % 2 == 0 || j % 2 == 0) {
-				worldTransformBlocks_[i][j] = nullptr;
-				continue;
-			}
-
-			worldTransformBlocks_[i][j] = new WorldTransform();
-			worldTransformBlocks_[i][j]->Initialize();
-			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
-			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
-		}
-	}
 	modelBlock_ = Model::Create();
 
 	modelSkydome_ = Model::CreateFromOBJ("Wavefront", true);
-	
+
 	// 天球の生成
 	skydome_ = new Skydome();
 	// 天球の初期化
 	skydome_->Initialize(modelSkydome_, &camera_);
 
+	mapChipField_ = new MapChipField();
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+	GenerateBlocks();
 }
 
 GameScene::~GameScene() {
@@ -197,6 +171,33 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 }
 
+void GameScene::GenerateBlocks() {
+	// 要素数
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+	// ブロック1個分の横幅
+
+	// 要素数を変更する
+	// 列数を設定(縦方向のブロック数)
+	worldTransformBlocks_.resize(numBlockVirtical);//縦方向
+	for (uint32_t i = 0; i < numBlockVirtical; i++) {
+		// 1列の要素数を設定(横方向のブロック数)
+		worldTransformBlocks_[i].resize(numBlockHorizontal);
+	}
+	// ブロックの生成
+	for (uint32_t i = 0; i < numBlockVirtical; i++) {
+		for (uint32_t j = 0; j < numBlockHorizontal; j++) {
+
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformBlocks_[i][j] = worldTransform;
+				worldTransformBlocks_[i][j]->translation_= mapChipField_->GetMapChipPositionByIndex(j,i);
+			}
+		}
+	}
+}
+
 void GameScene::Update() {
 	// 更新処理
 
@@ -211,7 +212,7 @@ void GameScene::Update() {
 
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 		// 音声再生
-	//	Audio::GetInstance()->StopWave(soundDataHandle_);
+		//	Audio::GetInstance()->StopWave(soundDataHandle_);
 	}
 
 // デモウィンドウの表示を有効化
@@ -253,10 +254,8 @@ void GameScene::Update() {
 		camera_.UpdateMatrix();
 	}
 
-	//天球の処理
+	// 天球の処理
 	skydome_->Update();
-
-
 }
 
 void GameScene::Draw() {

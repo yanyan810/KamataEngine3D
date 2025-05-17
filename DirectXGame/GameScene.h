@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Skydome.h"
 #include <vector>
+#include "MapChipFiled.h"
 
 // ゲームシーン
 class GameScene {
@@ -20,6 +21,8 @@ public:
 
 	// 描画
 	void Draw();
+
+	void GenerateBlocks();
 
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
@@ -44,6 +47,8 @@ public:
 	Player* player_ = nullptr;
 
 	Skydome* skydome_ = nullptr;
+
+	MapChipField* mapChipField_ ;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 
