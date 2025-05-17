@@ -1,7 +1,8 @@
 #pragma once
 #include "KamataEngine.h"
 #include <cassert>
-
+#include "WorldTransformClass.h"
+#include "Matrix4x4_.h"
 /// <summary>
 /// 自キャラ
 /// </summary>
