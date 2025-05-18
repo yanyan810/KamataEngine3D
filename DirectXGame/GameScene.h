@@ -62,6 +62,8 @@ public:
 private:
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
 
+	uint32_t playerTextureHandle_ = 0; // プレイヤーテクスチャハンドル
+
 	uint32_t soundDataHandle_ = 0; // サウンドデータハンドル
 
 	uint32_t voiceHandle_ = 0; // 音声ハンドル
