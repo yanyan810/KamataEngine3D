@@ -93,7 +93,6 @@ KamataEngine::Vector3 Player::MapClisionCheckUp(Player::ColisionMapInfo& info) {
 //	if (mapChipType == MapChipField::MapChipType::kBlock) {
 //		hit = true;
 //	}
-//
 //	  return info.velosity_; // 衝突していないならそのまま返す
 //
 // }
