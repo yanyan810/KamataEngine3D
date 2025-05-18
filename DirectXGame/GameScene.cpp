@@ -44,13 +44,7 @@ void GameScene::Initialize() {
 	// 軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
-	// 自キャラの生成
-	player_ = new Player();
-	// 自キャラの初期化
-	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2,17);
-	//座標をマップチップ番号で指定
-	player_->Initialize(model_, playerTextureHandle_, &camera_,playerPosition);
-
+	
 	modelBlock_ = Model::Create();
 
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
@@ -63,6 +57,14 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
+
+	// 自キャラの生成
+	player_ = new Player();
+	// 自キャラの初期化
+	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 17);
+	// 座標をマップチップ番号で指定
+	player_->Initialize(model_, playerTextureHandle_, &camera_, playerPosition);
+	player_->SetMapChipField(mapChipField_);
 
 	cameraController_ = new CameraController();
 	// CameraControllerの初期化
@@ -109,7 +111,7 @@ void GameScene::GenerateBlocks() {
 	for (uint32_t i = 0; i < numBlockVirtical; i++) {
 		for (uint32_t j = 0; j < numBlockHorizontal; j++) {
 
-			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipField::MapChipType::kBlock) {
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
 				worldTransformBlocks_[i][j] = worldTransform;
