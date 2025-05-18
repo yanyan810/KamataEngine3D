@@ -8,13 +8,15 @@ using namespace KamataEngine;
 void GameScene::Initialize() {
 	// 初期化処理
 
-	textureHandle_ = TextureManager::Load("sample.png");
+	textureHandle_ = TextureManager::Load("/cube/cube.jpg");
+
+	playerTextureHandle_ = TextureManager::Load("/sample.png");
 
 	// スプライトインスタンスの生成
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
 
 	// 3Dモデルの生成
-	model_ = Model::Create();
+	model_ = Model::CreateFromOBJ("player", true);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -45,7 +47,9 @@ void GameScene::Initialize() {
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	player_->Initialize(model_, textureHandle_, &camera_);
+	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2,17);
+	//座標をマップチップ番号で指定
+	player_->Initialize(model_, playerTextureHandle_, &camera_,playerPosition);
 
 	modelBlock_ = Model::Create();
 
@@ -182,7 +186,7 @@ void GameScene::Draw() {
 
 	// model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
 
-	// 3Dモデル描画
+	//// 3Dモデル描画
 	// model_->Draw(worldTransform_, camera_, textureHandle_);
 
 	// ブロックの描画
