@@ -138,3 +138,9 @@ void Player::Updata() {
 }
 
 void Player::Draw() { model_->Draw(worldTransform_, *camera_, textureHandle_); }
+
+void Player::SetPosition(const KamataEngine::Vector3& position) { worldTransform_.translation_ = position; }
+
+const KamataEngine::WorldTransform& Player::GetWoldTransform() const { 
+	return worldTransform_; 
+}

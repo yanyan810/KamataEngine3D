@@ -32,6 +32,14 @@ class Player {
 		/// </summary>
 		void Draw();
 
+		const KamataEngine::WorldTransform& GetWoldTransform() const;
+
+		void SetPosition(const KamataEngine::Vector3& position);
+
+		const KamataEngine::Vector3& GetVelosity() const { return velosity_; }
+
+		const KamataEngine::Vector3& GetPosition() const { return worldTransform_.translation_; }
+
 		private:
 	    KamataEngine::WorldTransform worldTransform_;
 
