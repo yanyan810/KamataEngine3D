@@ -63,6 +63,17 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
+
+	cameraController_ = new CameraController();
+	// CameraControllerの初期化
+	cameraController_->Initialize(&camera_); // 自前のCameraを使うなら引数なしでOK
+
+	// プレイヤーを追従対象としてセット
+	cameraController_->SetTarget(player_);
+
+	// カメラ位置を即時合わせる
+	cameraController_->Reset();
+
 }
 
 GameScene::~GameScene() {
@@ -166,6 +177,9 @@ void GameScene::Update() {
 
 	// 天球の処理
 	skydome_->Update();
+
+	cameraController_->Update();
+
 }
 
 void GameScene::Draw() {
