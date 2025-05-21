@@ -93,11 +93,11 @@ private:
 
 	KamataEngine::Vector3 velosity_ = {};
 
-	static inline const float kAcceleration = 0.1f;
+	static inline const float kAcceleration = 0.05f;
 
 	static inline const float kAttenuation = 0.05f;
 
-	static inline const float kLimitRunSpeed = 1.0f;
+	static inline const float kLimitRunSpeed = 0.7f;
 
 	LRDirection lrDirection_ = LRDirection::kRight;
 
