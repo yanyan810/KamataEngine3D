@@ -16,7 +16,9 @@ void GameScene::Initialize() {
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
 
 	// 3Dモデルの生成
-	model_ = Model::CreateFromOBJ("player", true);
+	playerModel_ = Model::CreateFromOBJ("player", true);
+	//敵
+	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -25,12 +27,12 @@ void GameScene::Initialize() {
 	camera_.Initialize();
 	
 	// サウンドデータの読み込み
-	soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
+	//soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
 
 	// 音声再生
-	Audio::GetInstance()->PlayWave(soundDataHandle_);
+	//Audio::GetInstance()->PlayWave(soundDataHandle_);
 
-	voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
+	//voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
 
 	// ライン描画が参照するカメラを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
@@ -58,12 +60,17 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
 
+	//=================
+	//プレイヤー
+	//=================
+
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
 	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 17);
+
 	// 座標をマップチップ番号で指定
-	player_->Initialize(model_, playerTextureHandle_, &camera_, playerPosition);
+	player_->Initialize(playerModel_, playerTextureHandle_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
 	cameraController_ = new CameraController();
@@ -76,15 +83,34 @@ void GameScene::Initialize() {
 	// カメラ位置を即時合わせる
 	cameraController_->Reset();
 
+	//=======
+	//敵
+	//=======
+
+	// 敵の生成
+	enemy_ = new Enemy();
+	// 敵の初期化
+	KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 17);
+	//座標をマップチップで指定
+	enemy_->Initialize(enemyModel_, enemyHandle_, &camera_, enemyPosition);
+
 }
+
+
 
 GameScene::~GameScene() {
 	delete sprite_;
-	delete model_;
+	delete playerModel_;
+	delete enemyModel_;
 	delete debugCamera_;
 	delete player_;
 	delete modelBlock_;
 	delete modelSkydome_;
+	delete skydome_;
+	delete cameraController_;
+	delete mapChipField_;
+	delete enemy_;
+	// ワールドトランスフォームの解放
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 
@@ -147,6 +173,11 @@ void GameScene::Update() {
 
 	player_->Updata();
 
+	//ポインタがnullではないときだけ行う
+//	if (enemy_!=nullptr) {
+
+		enemy_->Update();
+	//}
 	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -216,8 +247,14 @@ void GameScene::Draw() {
 	// 自キャラの描画
 	player_->Draw();
 
+	//敵の描画
+	//if (enemy_ != nullptr) {
+		enemy_->Draw();
+	//}
 	// === Skydome描画（背景） ===
 	skydome_->Draw();
+
+
 
 	// 3Dモデルの描画後処理
 	Model::PostDraw();
