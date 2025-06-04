@@ -83,8 +83,8 @@ public:
 	void IsWall(Player::ColisionMapInfo& info);
 
 	// キャラクターの当たり判定サイズ
-	static inline const float kWidth = 1.8f;
-	static inline const float kHeight = 1.8f;
+	static inline const float kWidth = 2.0f;
+	static inline const float kHeight = 2.0f;
 	KamataEngine::WorldTransform worldTransform_;
 
 	// マップチップによるフィールド
@@ -92,6 +92,7 @@ public:
 
 	void MoveAccordingResult(const ColisionMapInfo& info);
 
+	void WorldPosUpdate(const ColisionMapInfo& info);
 
 private:
 
@@ -129,7 +130,10 @@ private:
 	static inline const float kJumpAcceleration = 1.0f;
 	static inline const float kBlank = 2.0f;
 	static inline const float kLandingAdjust = 0.0001f; // 着地調整量
-	static inline const float kAttenuationLanding = 0.5f;
+	static inline const float kAttenuationLanding = 0.1f;
 	static inline const float smallNum = 0.05f;
 	static inline const float kAttenuationWall = 0.01f;
+	const float kEpsilon = 0.01f;
+
+
 };

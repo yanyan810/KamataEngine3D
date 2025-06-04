@@ -47,7 +47,7 @@ public:
 
 	Player* player_ = nullptr;
 
-	Enemy* enemy_ = nullptr;
+	//Enemy* enemy_ = nullptr;
 
 	Skydome* skydome_ = nullptr;
 

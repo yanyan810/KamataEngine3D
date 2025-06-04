@@ -18,7 +18,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	playerModel_ = Model::CreateFromOBJ("player", true);
 	//敵
-	enemyModel_ = Model::CreateFromOBJ("enemy", true);
+	//enemyModel_ = Model::CreateFromOBJ("enemy", true);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -88,11 +88,11 @@ void GameScene::Initialize() {
 	//=======
 
 	// 敵の生成
-	enemy_ = new Enemy();
+	//enemy_ = new Enemy();
 	// 敵の初期化
-	KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 17);
+//	KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 17);
 	//座標をマップチップで指定
-	enemy_->Initialize(enemyModel_, enemyHandle_, &camera_, enemyPosition);
+	//enemy_->Initialize(enemyModel_, enemyHandle_, &camera_, enemyPosition);
 
 }
 
@@ -101,7 +101,7 @@ void GameScene::Initialize() {
 GameScene::~GameScene() {
 	delete sprite_;
 	delete playerModel_;
-	delete enemyModel_;
+	//delete enemyModel_;
 	delete debugCamera_;
 	delete player_;
 	delete modelBlock_;
@@ -109,7 +109,7 @@ GameScene::~GameScene() {
 	delete skydome_;
 	delete cameraController_;
 	delete mapChipField_;
-	delete enemy_;
+//	delete enemy_;
 	// ワールドトランスフォームの解放
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -176,7 +176,7 @@ void GameScene::Update() {
 	//ポインタがnullではないときだけ行う
 //	if (enemy_!=nullptr) {
 
-		enemy_->Update();
+	//	enemy_->Update();
 	//}
 	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -249,7 +249,7 @@ void GameScene::Draw() {
 
 	//敵の描画
 	//if (enemy_ != nullptr) {
-		enemy_->Draw();
+		//enemy_->Draw();
 	//}
 	// === Skydome描画（背景） ===
 	skydome_->Draw();

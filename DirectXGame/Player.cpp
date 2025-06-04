@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <numbers>
+#include "WorldTransformClass.h"
 
 float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 
@@ -23,7 +24,7 @@ KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Player
 
 void Player::MapCllisionCheckUp(Player::ColisionMapInfo& info) {
 	// 上昇あり？
-	if (info.velosity_.y <= 0) {
+	if (info.velosity_.y <= 0.0f) {
 		return;
 	}
 
@@ -85,7 +86,7 @@ void Player::MapCllisionCheckDown(Player::ColisionMapInfo& info) {
 	}
 	// 下降あり？
 
-	if (info.velosity_.y >= 0) {
+	if (info.velosity_.y > 0.0f) {
 		return;
 	}
 	MapChipField::MapChipType mapChipType;
@@ -293,7 +294,7 @@ void Player::OnSwichGround(const Player::ColisionMapInfo& info) {
 			// 空中状態に切り替える
 			onGround_ = false;
 		}
-
+		
 	} else {
 
 		// 着地フラグ
@@ -306,6 +307,7 @@ void Player::OnSwichGround(const Player::ColisionMapInfo& info) {
 			velosity_.y = 0.0f;
 		}
 	}
+
 }
 
 void Player::IsWall(Player::ColisionMapInfo& info) {
@@ -437,29 +439,53 @@ void Player::PlayerMove() {
 	}
 }
 
+void Player::WorldPosUpdate(const ColisionMapInfo& info) {
+	// 移動量を反映させる
+	worldTransform_.translation_.x += info.velosity_.x;
+	worldTransform_.translation_.y += info.velosity_.y;
+	worldTransform_.translation_.z += info.velosity_.z;
+}
+
 void Player::Updata() {
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
+
+
+
+	/*if (worldTransform_.translation_.y < 2.0f) {
+		worldTransform_.translation_.y = 2.0f;
+		
+	}*/
 
 	// 移動処理
 	PlayerMove();
 
 	ColisionMapInfo collisionMapInfo;
 	collisionMapInfo.velosity_ = velosity_;
+	
+		if (velosity_.y == 0) {
+		onGround_ = true;
+		    collisionMapInfo.landing = true;
+	}
+
 	// マップ衝突判定
 	MapCollisionCheck(collisionMapInfo);
+	WorldPosUpdate(collisionMapInfo);
 	OnSwichGround(collisionMapInfo);
 	IsCelling(collisionMapInfo);
 	IsWall(collisionMapInfo);
 	// 判定結果を反映させて移動させる
-	velosity_ = collisionMapInfo.velosity_;
+
+
+	WorldTrnasformUpdate(worldTransform_);
 
 	ImGui::Text("isWall  : %s", collisionMapInfo.isWall ? "true" : "false");
+	ImGui::Text("isGround  : %s", collisionMapInfo.landing ? "true" : "false");
+	ImGui::Text("onGround  : %s",onGround_ ? "true" : "false");
+	ImGui::Text("playerY  : %f", worldTransform_.translation_.y);
 	ImGui::Text("velsity.y  : %f", velosity_.y);
+	ImGui::Text("velsity.x  : %f", velosity_.x);
 
-	worldTransform_.translation_.x += velosity_.x;
-	worldTransform_.translation_.y += velosity_.y;
-	worldTransform_.translation_.z += velosity_.z;
 }
 
 void Player::Draw() { model_->Draw(worldTransform_, *camera_, textureHandle_); }
