@@ -47,7 +47,7 @@ public:
 
 	Player* player_ = nullptr;
 
-	//Enemy* enemy_ = nullptr;
+	Enemy* enemy_ = nullptr;
 
 	Skydome* skydome_ = nullptr;
 
@@ -70,7 +70,7 @@ private:
 
 	uint32_t playerTextureHandle_ = 0; // プレイヤーテクスチャハンドル
 
-	uint16_t enemyHandle_ = 0; // 敵のテクスチャハンドル
+	uint32_t enemyTextureHandle_ = 0; // 敵のテクスチャハンドル
 
 	uint32_t soundDataHandle_ = 0; // サウンドデータハンドル
 
