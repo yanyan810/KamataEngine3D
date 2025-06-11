@@ -12,13 +12,15 @@ void GameScene::Initialize() {
 
 	playerTextureHandle_ = TextureManager::Load("/sample.png");
 
+	enemyTextureHandle_ = TextureManager::Load("/uvChecker.png");
+
 	// スプライトインスタンスの生成
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
 
 	// 3Dモデルの生成
 	playerModel_ = Model::CreateFromOBJ("player", true);
 	//敵
-	//enemyModel_ = Model::CreateFromOBJ("enemy", true);
+	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -67,7 +69,7 @@ void GameScene::Initialize() {
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 17);
+	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
 
 	// 座標をマップチップ番号で指定
 	player_->Initialize(playerModel_, playerTextureHandle_, &camera_, playerPosition);
@@ -87,12 +89,12 @@ void GameScene::Initialize() {
 	//敵
 	//=======
 
-	// 敵の生成
-	//enemy_ = new Enemy();
-	// 敵の初期化
-//	KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 17);
+	 //敵の生成
+	enemy_ = new Enemy();
+	 //敵の初期化
+	KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(18, 18);
 	//座標をマップチップで指定
-	//enemy_->Initialize(enemyModel_, enemyHandle_, &camera_, enemyPosition);
+	enemy_->Initialize(enemyModel_, enemyTextureHandle_, &camera_, enemyPosition);
 
 }
 
@@ -101,7 +103,7 @@ void GameScene::Initialize() {
 GameScene::~GameScene() {
 	delete sprite_;
 	delete playerModel_;
-	//delete enemyModel_;
+	delete enemyModel_;
 	delete debugCamera_;
 	delete player_;
 	delete modelBlock_;
@@ -109,7 +111,7 @@ GameScene::~GameScene() {
 	delete skydome_;
 	delete cameraController_;
 	delete mapChipField_;
-//	delete enemy_;
+	delete enemy_;
 	// ワールドトランスフォームの解放
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -150,14 +152,14 @@ void GameScene::GenerateBlocks() {
 void GameScene::Update() {
 	// 更新処理
 
-	// スプライトの今の座標を取得
-	Vector2 position = sprite_->GetPosition();
-	// 座標を{2,1}移動
-	position.x += 2.0f;
-	position.y += 1.0f;
+	//// スプライトの今の座標を取得
+	//Vector2 position = sprite_->GetPosition();
+	//// 座標を{2,1}移動
+	//position.x += 2.0f;
+	//position.y += 1.0f;
 
 	// 移動した座標をスプライトに反映
-	sprite_->SetPosition(position);
+	//sprite_->SetPosition(position);
 
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 		// 音声再生
@@ -176,7 +178,7 @@ void GameScene::Update() {
 	//ポインタがnullではないときだけ行う
 //	if (enemy_!=nullptr) {
 
-	//	enemy_->Update();
+		enemy_->Update();
 	//}
 	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -223,7 +225,7 @@ void GameScene::Draw() {
 	// スプライト描画前処理
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
-	// sprite_->Draw();
+	 //sprite_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -249,7 +251,7 @@ void GameScene::Draw() {
 
 	//敵の描画
 	//if (enemy_ != nullptr) {
-		//enemy_->Draw();
+		enemy_->Draw();
 	//}
 	// === Skydome描画（背景） ===
 	skydome_->Draw();
