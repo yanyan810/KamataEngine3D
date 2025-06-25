@@ -47,7 +47,7 @@ public:
 
 	Player* player_ = nullptr;
 
-	Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
 	Skydome* skydome_ = nullptr;
 

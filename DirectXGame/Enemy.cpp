@@ -14,11 +14,9 @@ inline float DegToRad(float deg) { return deg * std::numbers::pi_v<float> / 180.
 //float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 
 
-void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
+void Enemy::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
 	// モデルの読み込み
 	model_ = model;
-
-	textureHandle_ = textureHandle;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();

@@ -338,6 +338,18 @@ void Player::MapCollisionCheck(ColisionMapInfo& info) {
 	MapCllisionCheckLeft(info);
 }
 
+KamataEngine::Vector3 Player::GetWorldPosition() {
+
+	//ワールド座標を入れる変数
+	Vector3 worldPos;
+
+	//ワールド行列の平行移動成分を取得(ワールド座標)
+
+
+
+}
+
+
 void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
 
 	// NULLポインタチェック

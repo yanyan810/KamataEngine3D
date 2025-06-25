@@ -94,6 +94,8 @@ public:
 
 	void WorldPosUpdate(const ColisionMapInfo& info);
 
+	KamataEngine::Vector3 GetWorldPosition();
+
 private:
 
 	KamataEngine::Model* model_ = nullptr;
