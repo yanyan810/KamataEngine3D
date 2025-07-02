@@ -345,8 +345,29 @@ KamataEngine::Vector3 Player::GetWorldPosition() {
 
 	//ワールド行列の平行移動成分を取得(ワールド座標)
 
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
+	return worldPos;
 
+}
+
+AABB Player::GetAABB() {
+
+	AABB aabb;
+	aabb.min = {worldTransform_.translation_.x - kWidth / 2.0f, worldTransform_.translation_.y - kHeight / 2.0f, worldTransform_.translation_.z-kWidth/2.0f};
+	aabb.max = {worldTransform_.translation_.x + kWidth / 2.0f, worldTransform_.translation_.y + kHeight / 2.0f, worldTransform_.translation_.z + kWidth / 2.0f};
+
+	return aabb;
+
+}
+
+void Player::OnCollision(const Enemy* enemy) { 
+	(void)enemy;
+	//velosity_.x += 1.0f;
+	velosity_.y += 1.0f;
+	//velosity_.z += 1.0f;
 }
 
 

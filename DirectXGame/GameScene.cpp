@@ -19,7 +19,7 @@ void GameScene::Initialize() {
 
 	// 3Dモデルの生成
 	playerModel_ = Model::CreateFromOBJ("player", true);
-	//敵
+	// 敵
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 
 	// ワールドトランスフォームの初期化
@@ -27,14 +27,14 @@ void GameScene::Initialize() {
 	// カメラの初期化
 	camera_.farZ = 1000.0f; // カメラの奥行きの最大値を設定
 	camera_.Initialize();
-	
+
 	// サウンドデータの読み込み
-	//soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
+	// soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
 
 	// 音声再生
-	//Audio::GetInstance()->PlayWave(soundDataHandle_);
+	// Audio::GetInstance()->PlayWave(soundDataHandle_);
 
-	//voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
+	// voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
 
 	// ライン描画が参照するカメラを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
@@ -48,7 +48,6 @@ void GameScene::Initialize() {
 	// 軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
 	AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
 
-	
 	modelBlock_ = Model::Create();
 
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
@@ -63,7 +62,7 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 
 	//=================
-	//プレイヤー
+	// プレイヤー
 	//=================
 
 	// 自キャラの生成
@@ -86,21 +85,18 @@ void GameScene::Initialize() {
 	cameraController_->Reset();
 
 	//=======
-	//敵
+	// 敵
 	//=======
 	for (int32_t i = 0; i < 3; i++) {
 
 		Enemy* newEnemy = new Enemy();
 
 		// 敵の初期化
-		KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(5+(i*2), 18);
+		KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(5 + (i * 2), 18);
 		newEnemy->Initialize(enemyModel_, &camera_, enemyPosition);
 		enemies_.push_back(newEnemy);
-		
 	}
 }
-
-
 
 GameScene::~GameScene() {
 	delete sprite_;
@@ -123,11 +119,10 @@ GameScene::~GameScene() {
 	}
 	worldTransformBlocks_.clear();
 
-	//敵の解放
+	// 敵の解放
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
-
 }
 
 void GameScene::GenerateBlocks() {
@@ -138,7 +133,7 @@ void GameScene::GenerateBlocks() {
 
 	// 要素数を変更する
 	// 列数を設定(縦方向のブロック数)
-	worldTransformBlocks_.resize(numBlockVirtical);//縦方向
+	worldTransformBlocks_.resize(numBlockVirtical); // 縦方向
 	for (uint32_t i = 0; i < numBlockVirtical; i++) {
 		// 1列の要素数を設定(横方向のブロック数)
 		worldTransformBlocks_[i].resize(numBlockHorizontal);
@@ -151,23 +146,60 @@ void GameScene::GenerateBlocks() {
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
 				worldTransformBlocks_[i][j] = worldTransform;
-				worldTransformBlocks_[i][j]->translation_= mapChipField_->GetMapChipPositionByIndex(j,i);
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
 			}
 		}
 	}
+}
+
+// 全ての当たり判定を行う
+void GameScene::CheckAllCollisions() {
+#pragma region プレイヤーと敵の当たり判定
+
+	AABB aabb1, aabb2;
+
+	//自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	//自キャラと敵全ての当たり判定
+	for (Enemy* enemy : enemies_) {
+		if (!enemy)
+			continue; // nullptrチェック
+		// 敵の座標
+		aabb2 = enemy->GetAABB();
+		// 当たり判定
+		if (aabb_.IsCollisionAABB(aabb1, aabb2)) {
+			// 当たったときの処理
+			player_->OnCollision(enemy);
+			// 敵の当たり判定
+			enemy->OnCollision(player_);
+
+		}
+	}
+
+
+#pragma endregion
+
+#pragma region プレイヤーとアイテムの当たり判定
+
+#pragma endregion
+
+#pragma region 自分の弾と敵の当たり判定
+
+#pragma endregion
 }
 
 void GameScene::Update() {
 	// 更新処理
 
 	//// スプライトの今の座標を取得
-	//Vector2 position = sprite_->GetPosition();
+	// Vector2 position = sprite_->GetPosition();
 	//// 座標を{2,1}移動
-	//position.x += 2.0f;
-	//position.y += 1.0f;
+	// position.x += 2.0f;
+	// position.y += 1.0f;
 
 	// 移動した座標をスプライトに反映
-	//sprite_->SetPosition(position);
+	// sprite_->SetPosition(position);
 
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 		// 音声再生
@@ -183,15 +215,14 @@ void GameScene::Update() {
 
 	player_->Updata();
 
-	//ポインタがnullではないときだけ行う
-//	if (enemy_!=nullptr) {
+	// ポインタがnullではないときだけ行う
+	//	if (enemy_!=nullptr) {
 
 	for (Enemy* enemy : enemies_) {
 		if (enemy) {
 			enemy->Update();
 		}
 	}
-
 
 	//}
 	// ブロックの更新
@@ -212,6 +243,8 @@ void GameScene::Update() {
 	}
 #endif
 
+	CheckAllCollisions();
+
 	if (isDebugCameraActive_) {
 		// デバッグカメラの更新
 		camera_.matView = debugCamera_->GetCamera().matView;
@@ -228,7 +261,6 @@ void GameScene::Update() {
 	skydome_->Update();
 
 	cameraController_->Update();
-
 }
 
 void GameScene::Draw() {
@@ -239,7 +271,7 @@ void GameScene::Draw() {
 	// スプライト描画前処理
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
-	 //sprite_->Draw();
+	// sprite_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -263,8 +295,8 @@ void GameScene::Draw() {
 	// 自キャラの描画
 	player_->Draw();
 
-	//敵の描画
-	//if (enemy_ != nullptr) {
+	// 敵の描画
+	// if (enemy_ != nullptr) {
 	for (Enemy* enemy : enemies_) {
 		if (enemy) {
 			enemy->Draw();
@@ -274,8 +306,6 @@ void GameScene::Draw() {
 	//}
 	// === Skydome描画（背景） ===
 	skydome_->Draw();
-
-
 
 	// 3Dモデルの描画後処理
 	Model::PostDraw();

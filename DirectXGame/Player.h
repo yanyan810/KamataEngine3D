@@ -3,8 +3,11 @@
 #include "Matrix4x4_.h"
 #include "WorldTransformClass.h"
 #include <cassert>
+#include "AABB.h"
 
 class MapChipField;
+
+class Enemy;
 
 /// <summary>
 /// 自キャラ
@@ -82,6 +85,8 @@ public:
 
 	void IsWall(Player::ColisionMapInfo& info);
 
+	void OnCollision(const Enemy* enemy);
+
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 2.0f;
 	static inline const float kHeight = 2.0f;
@@ -95,6 +100,9 @@ public:
 	void WorldPosUpdate(const ColisionMapInfo& info);
 
 	KamataEngine::Vector3 GetWorldPosition();
+
+	AABB GetAABB();
+
 
 private:
 
