@@ -7,7 +7,7 @@
 #include "CameraController.h"
 #include "Enemy.h"
 #include "AABB.h"
-
+#include "DethParticles.h"
 // ゲームシーン
 class GameScene {
 
@@ -39,7 +39,10 @@ public:
 	KamataEngine::Model* enemyModel_ = nullptr;
 	// ブロックモデル
 	KamataEngine::Model* modelBlock_ = nullptr;
-	;
+	//パーティクル
+	KamataEngine::Model* modelParticle_ = nullptr;
+	//テクスチャハンドル
+	uint32_t dethTextureHandle_ = 0; // テクスチャハンドル
 
 	// ワールドトランスフォーム
 	KamataEngine::WorldTransform worldTransform_;
@@ -70,6 +73,8 @@ public:
 
 	KamataEngine::Model* modelSkydome_ = nullptr;
 
+	DethParticles* deathParticles_ = nullptr;
+
 	AABB aabb_;
 
 private:
@@ -79,6 +84,8 @@ private:
 
 	uint32_t enemyTextureHandle_ = 0; // 敵のテクスチャハンドル
 
+
+
 	uint32_t soundDataHandle_ = 0; // サウンドデータハンドル
 
 	uint32_t voiceHandle_ = 0; // 音声ハンドル
@@ -86,6 +93,8 @@ private:
 	float inputFloat3[3] = {0.0f, 0.0f, 0.0f}; // ImGui用のfloat配列
 
 	// Matrix4x4 viewMatrix;
+
+	bool isDethParticlesActive_ ; // 死亡パーティクルのアクティブ状態
 
 	bool isDebugCameraActive_ = false;
 };
