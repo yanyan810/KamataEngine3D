@@ -38,6 +38,20 @@ void Enemy::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera,
 
 }
 
+void Enemy::OnCollision(const Player* player) { 
+	(void)player; 
+}
+
+AABB Enemy::GetAABB() {
+
+	AABB aabb;
+	aabb.min = {worldTransform_.translation_.x - kWidth / 2.0f, worldTransform_.translation_.y - kHeight / 2.0f, worldTransform_.translation_.z - kWidth / 2.0f};
+	aabb.max = {worldTransform_.translation_.x + kWidth / 2.0f, worldTransform_.translation_.y + kHeight / 2.0f, worldTransform_.translation_.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+
 void Enemy::WorldPosUpdate() {
 
 	worldTransform_.translation_.x += velostity_.x;

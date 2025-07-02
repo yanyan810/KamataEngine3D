@@ -6,11 +6,13 @@
 #include "MapChipFiled.h"
 #include "CameraController.h"
 #include "Enemy.h"
+#include "AABB.h"
 
 // ゲームシーン
 class GameScene {
 
 public:
+
 	// 初期化
 	void Initialize();
 
@@ -24,6 +26,9 @@ public:
 	void Draw();
 
 	void GenerateBlocks();
+
+	//全ての当たり判定を行う
+	void CheckAllCollisions();
 
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
@@ -64,6 +69,8 @@ public:
 	KamataEngine::Sprite* blackSprite_ = nullptr;
 
 	KamataEngine::Model* modelSkydome_ = nullptr;
+
+	AABB aabb_;
 
 private:
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
