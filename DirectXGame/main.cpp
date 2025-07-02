@@ -51,6 +51,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//描画終了
 		dxCommon->PostDraw();
+
+		if (KamataEngine::Input::GetInstance()->PushKey(DIK_ESCAPE)) {
+			return 0; // 左キーが押されたら終了
+		}
+
 	}
 
 	// ゲームシーンの解放

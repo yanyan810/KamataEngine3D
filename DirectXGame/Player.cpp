@@ -366,7 +366,7 @@ AABB Player::GetAABB() {
 void Player::OnCollision(const Enemy* enemy) { 
 	(void)enemy;
 	//velosity_.x += 1.0f;
-	velosity_.y += 1.0f;
+	//velosity_.y += 1.0f;
 	//velosity_.z += 1.0f;
 }
 

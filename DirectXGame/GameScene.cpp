@@ -21,6 +21,8 @@ void GameScene::Initialize() {
 	playerModel_ = Model::CreateFromOBJ("player", true);
 	// 敵
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
+	// ぱーてぃくる
+	modelParticle_ = Model::CreateFromOBJ("deth", true);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -84,6 +86,11 @@ void GameScene::Initialize() {
 	// カメラ位置を即時合わせる
 	cameraController_->Reset();
 
+	// 仮の生成処理。後で消す
+	deathParticles_ = new DethParticles;
+	// 死亡パーティクルの初期化
+	deathParticles_->Initialize(modelParticle_, playerTextureHandle_, &camera_, playerPosition);
+
 	//=======
 	// 敵
 	//=======
@@ -92,10 +99,12 @@ void GameScene::Initialize() {
 		Enemy* newEnemy = new Enemy();
 
 		// 敵の初期化
-		KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(5 + (i * 2), 18);
+		KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(8 + (i * 2), 18);
 		newEnemy->Initialize(enemyModel_, &camera_, enemyPosition);
 		enemies_.push_back(newEnemy);
 	}
+
+	isDethParticlesActive_ = true;
 }
 
 GameScene::~GameScene() {
@@ -123,6 +132,7 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+	delete deathParticles_;
 }
 
 void GameScene::GenerateBlocks() {
@@ -158,10 +168,10 @@ void GameScene::CheckAllCollisions() {
 
 	AABB aabb1, aabb2;
 
-	//自キャラの座標
+	// 自キャラの座標
 	aabb1 = player_->GetAABB();
 
-	//自キャラと敵全ての当たり判定
+	// 自キャラと敵全ての当たり判定
 	for (Enemy* enemy : enemies_) {
 		if (!enemy)
 			continue; // nullptrチェック
@@ -173,10 +183,8 @@ void GameScene::CheckAllCollisions() {
 			player_->OnCollision(enemy);
 			// 敵の当たり判定
 			enemy->OnCollision(player_);
-
 		}
 	}
-
 
 #pragma endregion
 
@@ -210,6 +218,8 @@ void GameScene::Update() {
 #ifdef _DEBUG
 	ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
 #endif
+
+
 
 	debugCamera_->Update();
 
@@ -261,10 +271,19 @@ void GameScene::Update() {
 	skydome_->Update();
 
 	cameraController_->Update();
+
+	if (isDethParticlesActive_) {
+		deathParticles_->Updata();
+	}
 }
 
 void GameScene::Draw() {
 	// 描画処理
+
+	if (!modelParticle_) {
+		OutputDebugStringA("modelParticle_ is nullptr!\n");
+	}
+
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
@@ -306,6 +325,10 @@ void GameScene::Draw() {
 	//}
 	// === Skydome描画（背景） ===
 	skydome_->Draw();
+
+	if (isDethParticlesActive_) {
+		deathParticles_->Draw();
+	}
 
 	// 3Dモデルの描画後処理
 	Model::PostDraw();

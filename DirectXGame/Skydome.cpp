@@ -27,14 +27,6 @@ void Skydome::Update() {}
 
 void Skydome::Draw() {
 
-	// DirectXCommonのインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
-
 	model_->Draw(worldTransform_, *camera_);
 
-	// 3Dモデル描画後処理
-	Model::PostDraw();
 }
