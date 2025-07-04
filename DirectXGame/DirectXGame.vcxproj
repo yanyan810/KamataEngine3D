@@ -116,6 +116,8 @@
     <ClCompile Include="Matrix4x4_.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="Title.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="WorldTransformClass.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +205,8 @@
     <ClInclude Include="Matrix4x4_.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Skydome.h" />
+    <ClInclude Include="Title.h" />
+    <ClInclude Include="TitleScene.h" />
     <ClInclude Include="WorldTransformClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
