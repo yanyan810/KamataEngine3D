@@ -8,6 +8,14 @@
 #include "Enemy.h"
 #include "AABB.h"
 #include "DethParticles.h"
+
+enum class Phase {
+	kPlay,//ゲームプレイ
+	kDeath,//デス演出
+};
+
+
+
 // ゲームシーン
 class GameScene {
 
@@ -29,6 +37,8 @@ public:
 
 	//全ての当たり判定を行う
 	void CheckAllCollisions();
+
+	void ChangePhase();
 
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
@@ -77,6 +87,10 @@ public:
 
 	AABB aabb_;
 
+	Phase phase_;
+
+	bool IsFinished() const { return finished_; } // シーンが終了したかどうかを返す
+
 private:
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
 
@@ -84,7 +98,7 @@ private:
 
 	uint32_t enemyTextureHandle_ = 0; // 敵のテクスチャハンドル
 
-
+	bool finished_ = false; // シーンが終了したかどうかを示すフラグ
 
 	uint32_t soundDataHandle_ = 0; // サウンドデータハンドル
 

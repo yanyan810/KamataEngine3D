@@ -25,7 +25,7 @@ public:
 
 	uint32_t textureHandle_ = 0u;
 
-	
+	bool IsFinished() const { return isFinished_; }
 
 private:
 	static inline const uint32_t kNumParticleSize = 8;

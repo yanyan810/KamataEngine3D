@@ -52,6 +52,8 @@ public:
 	/// </summary>
 	void Updata();
 
+	void TitleUpdata();
+
 	void PlayerMove();
 
 	/// <summary>
@@ -103,6 +105,7 @@ public:
 
 	AABB GetAABB();
 
+	bool IsDead() const { return isDead_; }
 
 private:
 
@@ -144,6 +147,8 @@ private:
 	static inline const float smallNum = 0.05f;
 	static inline const float kAttenuationWall = 0.01f;
 	const float kEpsilon = 0.01f;
-
+	//デスフラグ
+	bool isDead_ = false;
+	float rotateTimer_ = 0.0f;
 
 };

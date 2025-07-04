@@ -368,6 +368,9 @@ void Player::OnCollision(const Enemy* enemy) {
 	//velosity_.x += 1.0f;
 	//velosity_.y += 1.0f;
 	//velosity_.z += 1.0f;
+
+	isDead_ = true;
+
 }
 
 
@@ -382,6 +385,7 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
 }
 
 void Player::PlayerMove() {
@@ -519,6 +523,18 @@ void Player::Updata() {
 	ImGui::Text("velsity.y  : %f", velosity_.y);
 	ImGui::Text("velsity.x  : %f", velosity_.x);
 
+}
+
+void Player::TitleUpdata() {
+	// タイトルシーンの更新処理
+	// タイマーを増加（回転速度）
+	rotateTimer_ += 1.0f;
+
+	// Y軸に回転を適用
+	worldTransform_.rotation_.y = rotateTimer_;
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.TransferMatrix();
+	WorldTrnasformUpdate(worldTransform_);
 }
 
 void Player::Draw() { model_->Draw(worldTransform_, *camera_, textureHandle_); }
