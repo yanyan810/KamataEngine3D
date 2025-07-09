@@ -2,9 +2,18 @@
 #include "KamataEngine.h"
 #include "Title.h"
 #include "Player.h"
+#include "Fade.h"
 class TitleScene {
 
 public:
+
+	enum class Phase {
+
+		kFadeIn, // フェードイン
+		kMain,   // メインフェーズ
+		kFadeOut, // フェードアウト
+
+	};
 
 	~TitleScene();
 
@@ -32,6 +41,7 @@ public:
 
 	bool IsFinished() const { return finished_; } // シーンが終了したかどうかを返す
 
+	Fade* fade_ = nullptr;
 
 private:
 	KamataEngine::Vector3 titlePosition_ ; // タイトルの位置
@@ -39,5 +49,9 @@ private:
 	KamataEngine::Vector3 playerPosition_ = {0.0f, 0.0f, 0.0f}; // プレイヤーの位置
 
 	bool finished_ = false; // シーンの終了フラグ
+
+	float duration_ = 1.0f;
+
+	Phase phase_ = Phase::kFadeIn; // シーンのフェーズ
 
 };

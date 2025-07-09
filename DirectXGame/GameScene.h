@@ -9,9 +9,13 @@
 #include "AABB.h"
 #include "DethParticles.h"
 
-enum class Phase {
-	kPlay,//ゲームプレイ
-	kDeath,//デス演出
+#include "Fade.h"
+
+enum class Phase { 
+	kFadeIn, 
+	kPlay, 
+	kDeath,
+	kFadeOut
 };
 
 
@@ -91,6 +95,8 @@ public:
 
 	bool IsFinished() const { return finished_; } // シーンが終了したかどうかを返す
 
+	Fade* fade_ = nullptr;
+
 private:
 	uint32_t textureHandle_ = 0; // テクスチャハンドル
 
@@ -111,4 +117,7 @@ private:
 	bool isDethParticlesActive_ ; // 死亡パーティクルのアクティブ状態
 
 	bool isDebugCameraActive_ = false;
+
+	float duration_ = 1.0f;
+
 };

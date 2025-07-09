@@ -26,6 +26,10 @@ void TitleScene::Initialize() {
 	player_ = new Player();
 	player_->Initialize(playerModel_, playerTextureHandle_, camera_, playerPosition_);
 
+	fade_ = new Fade();
+	fade_->Initialize(); // フェードの初期化
+	fade_->Start(Fade::Status::FadeIn, duration_);
+
 }
 
 TitleScene::~TitleScene() {
@@ -39,21 +43,41 @@ TitleScene::~TitleScene() {
 	if (playerModel_) {
 		delete playerModel_;
 	}
+	delete fade_; // フェードの解放
 }
 
 void TitleScene::Update() {
-	
-		title_->Update(); // ← これが必要
-	
+	fade_->Update(); // フェードの更新処理
 
-	
-		player_->TitleUpdata(); // プレイヤーの更新処理
-	
+	switch (phase_) {
+	case Phase::kFadeIn:
+		title_->Update();
+		player_->TitleUpdata();
+		if (fade_->IsFinished()) {
+			// フェードイン終了判定
+			phase_ = Phase::kMain;
+		}
+		break;
+
+	case Phase::kMain:
+		title_->Update();
+		player_->TitleUpdata();
+
+		// スペースキーを押したらフェードアウト開始
 		if (KamataEngine::Input::GetInstance()->PushKey(DIK_SPACE)) {
-		    // スペースキーが押されたらシーンを終了
-		    finished_ = true;
-	    }
+			fade_->Start(Fade::Status::FadeOut, duration_);
+			phase_ = Phase::kFadeOut;
+		}
+		break;
 
+	case Phase::kFadeOut:
+		title_->Update();
+		player_->TitleUpdata();
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
+		break;
+	}
 }
 
 void TitleScene::Draw() {
@@ -72,4 +96,8 @@ void TitleScene::Draw() {
 	
 
 	KamataEngine::Model::PostDraw();
+
+	fade_->Draw(); // フェードの描画処理
+
+
 }

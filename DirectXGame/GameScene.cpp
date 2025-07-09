@@ -3,12 +3,10 @@
 
 using namespace KamataEngine;
 
-//AL302_12の19ページから再開
+// AL302_13の27ページから再開
 
 void GameScene::Initialize() {
 	// 初期化処理
-
-	phase_ = Phase::kPlay;
 
 	textureHandle_ = TextureManager::Load("/cube/cube.jpg");
 
@@ -16,8 +14,8 @@ void GameScene::Initialize() {
 
 	enemyTextureHandle_ = TextureManager::Load("/uvChecker.png");
 
-	// スプライトインスタンスの生成
-	sprite_ = Sprite::Create(textureHandle_, {100, 50});
+	//// スプライトインスタンスの生成
+	// sprite_ = Sprite::Create(textureHandle_, {100, 50});
 
 	// 3Dモデルの生成
 	playerModel_ = Model::CreateFromOBJ("player", true);
@@ -107,6 +105,12 @@ void GameScene::Initialize() {
 	}
 
 	isDethParticlesActive_ = true;
+
+	fade_ = new Fade();
+	fade_->Initialize();
+	fade_->Start(Fade::Status::FadeIn, duration_);
+
+	phase_ = Phase::kFadeIn;
 }
 
 GameScene::~GameScene() {
@@ -135,6 +139,7 @@ GameScene::~GameScene() {
 		delete enemy;
 	}
 	delete deathParticles_;
+	delete fade_;
 }
 
 void GameScene::GenerateBlocks() {
@@ -202,8 +207,161 @@ void GameScene::CheckAllCollisions() {
 void GameScene::Update() {
 	// 更新処理
 
+	// switch (phase_) {
+	//	case Phase::kPlay:
+	//		// ゲームプレイ中の処理
+	//
+	//		//// スプライトの今の座標を取得
+	//		// Vector2 position = sprite_->GetPosition();
+	//		//// 座標を{2,1}移動
+	//		// position.x += 2.0f;
+	//		// position.y += 1.0f;
+	//
+	//		// 移動した座標をスプライトに反映
+	//		// sprite_->SetPosition(position);
+	//
+	//		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	//			// 音声再生
+	//			//	Audio::GetInstance()->StopWave(soundDataHandle_);
+	//		}
+	//
+	//// デモウィンドウの表示を有効化
+	// #ifdef _DEBUG
+	//		ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
+	// #endif
+	//
+	//		debugCamera_->Update();
+	//
+	//		player_->Updata();
+	//
+	//		if (player_->IsDead()) {
+	//			// 死亡演出フェーズに切り替え
+	//			phase_ = Phase::kDeath;
+	//			// 死亡パーティクルの位置をプレイヤーの位置に設定
+	//			deathParticles_->Initialize(modelParticle_, playerTextureHandle_, &camera_, player_->GetPosition());
+	//		}
+	//
+	//		// ポインタがnullではないときだけ行う
+	//		//	if (enemy_!=nullptr) {
+	//
+	//		for (Enemy* enemy : enemies_) {
+	//			if (enemy) {
+	//				enemy->Update();
+	//			}
+	//		}
+	//
+	//		//}
+	//		// ブロックの更新
+	//		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+	//			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+	//				if (!worldTransformBlock)
+	//					continue;
+	//				worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+	//				// 定数バッファを転送する
+	//				worldTransformBlock->TransferMatrix();
+	//			}
+	//		}
+	//
+	// #ifdef _DEBUG
+	//		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	//
+	//			isDebugCameraActive_ = true;
+	//		}
+	// #endif
+	//
+	//		CheckAllCollisions();
+	//
+	//		if (isDebugCameraActive_) {
+	//			// デバッグカメラの更新
+	//			camera_.matView = debugCamera_->GetCamera().matView;
+	//			camera_.matProjection = debugCamera_->GetCamera().matProjection;
+	//			// ビュープロジェクション行列の更新と転送
+	//			camera_.TransferMatrix();
+	//		} else {
+	//
+	//			// ビュープロジェクション行列の更新と転送
+	//			camera_.UpdateMatrix();
+	//		}
+	//
+	//		// 天球の処理
+	//		skydome_->Update();
+	//
+	//		cameraController_->Update();
+	//
+	//		break;
+	//
+	//	case Phase::kDeath:
+	//
+	//		// 天球の処理
+	//		skydome_->Update();
+	//
+	//		for (Enemy* enemy : enemies_) {
+	//			if (enemy) {
+	//				enemy->Update();
+	//			}
+	//		}
+	//
+	//		if (isDebugCameraActive_) {
+	//			// デバッグカメラの更新
+	//			camera_.matView = debugCamera_->GetCamera().matView;
+	//			camera_.matProjection = debugCamera_->GetCamera().matProjection;
+	//			// ビュープロジェクション行列の更新と転送
+	//			camera_.TransferMatrix();
+	//		} else {
+	//
+	//			// ビュープロジェクション行列の更新と転送
+	//			camera_.UpdateMatrix();
+	//		}
+	//
+	//		if (isDethParticlesActive_) {
+	//			deathParticles_->Updata();
+	//		}
+	//
+	//		// ブロックの更新
+	//		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+	//			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+	//				if (!worldTransformBlock)
+	//					continue;
+	//				worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+	//				// 定数バッファを転送する
+	//				worldTransformBlock->TransferMatrix();
+	//			}
+	//		}
+	//		if (deathParticles_ && deathParticles_->IsFinished()) {
+	//			finished_ = true; // シーンを終了するフラグを立てる
+	//		}
+	//		break;
+	//	}
+
+	fade_->Update();
+
 	switch (phase_) {
+	case Phase::kFadeIn:
+		
+		// ▼ kPlay 相当の処理を実行
+		debugCamera_->Update();
+		player_->Updata();
+
+		cameraController_->Update();
+		skydome_->Update();
+
+		// ブロックの更新なども忘れずに
+		for (auto& row : worldTransformBlocks_) {
+			for (auto* block : row) {
+				if (!block)
+					continue;
+				block->matWorld_ = MakeAffineMatrix(block->scale_, block->rotation_, block->translation_);
+				block->TransferMatrix();
+			}
+		}
+
+		if (fade_->IsFinished()) {
+			phase_ = Phase::kPlay;
+		}
+		break;
+
 	case Phase::kPlay:
+	//	fade_->Update();
 		// ゲームプレイ中の処理
 
 		//// スプライトの今の座標を取得
@@ -220,7 +378,7 @@ void GameScene::Update() {
 			//	Audio::GetInstance()->StopWave(soundDataHandle_);
 		}
 
-// デモウィンドウの表示を有効化
+		// デモウィンドウの表示を有効化
 #ifdef _DEBUG
 		ImGui::Text("Kamata Tarou %d.%d.%d", 2050, 12, 31);
 #endif
@@ -286,7 +444,7 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kDeath:
-
+	//	fade_->Update();
 		// 天球の処理
 		skydome_->Update();
 
@@ -323,8 +481,37 @@ void GameScene::Update() {
 			}
 		}
 		if (deathParticles_ && deathParticles_->IsFinished()) {
-			finished_ = true; // シーンを終了するフラグを立てる
-		} 
+
+			fade_->Start(Fade::Status::FadeOut, duration_); // 🔧 フェード開始を追加
+			phase_ = Phase::kFadeOut;                       // フェードアウトフェーズに切り替え
+		}
+		break;
+
+	case Phase::kFadeOut:
+	//	fade_->Update();
+		// 天球の処理
+		skydome_->Update();
+
+		for (Enemy* enemy : enemies_) {
+			if (enemy) {
+				enemy->Update();
+			}
+		}
+
+		// ブロックの更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+				if (!worldTransformBlock)
+					continue;
+				worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+				// 定数バッファを転送する
+				worldTransformBlock->TransferMatrix();
+			}
+		}
+
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
 		break;
 	}
 }
@@ -334,18 +521,13 @@ void GameScene::Draw() {
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	
-
-
-
-
 	switch (phase_) {
 	case Phase::kPlay:
 		if (!modelParticle_) {
 			OutputDebugStringA("modelParticle_ is nullptr!\n");
 		}
 
-			// スプライト描画前処理
+		// スプライト描画前処理
 		Sprite::PreDraw(dxCommon->GetCommandList());
 
 		// スプライト描画後処理
@@ -355,7 +537,7 @@ void GameScene::Draw() {
 		//// 3Dモデル描画
 		// model_->Draw(worldTransform_, camera_, textureHandle_);
 
-			// 3Dモデルの描画前処理
+		// 3Dモデルの描画前処理
 		Model::PreDraw(dxCommon->GetCommandList());
 
 		// ブロックの描画
@@ -395,7 +577,7 @@ void GameScene::Draw() {
 			OutputDebugStringA("modelParticle_ is nullptr!\n");
 		}
 
-			// スプライト描画前処理
+		// スプライト描画前処理
 		Sprite::PreDraw(dxCommon->GetCommandList());
 
 		// スプライト描画後処理
@@ -436,12 +618,87 @@ void GameScene::Draw() {
 			deathParticles_->Draw();
 		}
 
-			// 3Dモデルの描画後処理
+		// 3Dモデルの描画後処理
 		Model::PostDraw();
+		break;
+	case Phase::kFadeIn:
+
+		// 3Dモデルの描画前処理
+		Model::PreDraw(dxCommon->GetCommandList());
+
+		if (!modelParticle_) {
+			OutputDebugStringA("modelParticle_ is nullptr!\n");
+		}
+
+		// model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+
+		//// 3Dモデル描画
+		// model_->Draw(worldTransform_, camera_, textureHandle_);
+
+		// ブロックの描画
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+				if (!worldTransformBlock)
+					continue;
+				modelBlock_->Draw(*worldTransformBlock, camera_, textureHandle_);
+			}
+		}
+		// 自キャラの描画
+		player_->Draw();
+
+		// 敵の描画
+		// if (enemy_ != nullptr) {
+		for (Enemy* enemy : enemies_) {
+			if (enemy) {
+				enemy->Draw();
+			}
+		}
+
+		//}
+		// === Skydome描画（背景） ===
+		skydome_->Draw();
+
+		if (isDethParticlesActive_) {
+			deathParticles_->Draw();
+		}
+
+		// 3Dモデルの描画後処理
+		Model::PostDraw();
+
+		// 3Dモデルの描画後処理
+		Model::PostDraw();
+		break;
+
+	case Phase::kFadeOut:
+
+		// 3Dモデルの描画前処理
+		Model::PreDraw(dxCommon->GetCommandList());
+		// === Skydome描画（背景） ===
+		skydome_->Draw();
+
+		// ブロックの描画
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+				if (!worldTransformBlock)
+					continue;
+				modelBlock_->Draw(*worldTransformBlock, camera_, textureHandle_);
+			}
+		}
+
+		// 敵の描画
+		// if (enemy_ != nullptr) {
+		for (Enemy* enemy : enemies_) {
+			if (enemy) {
+				enemy->Draw();
+			}
+		}
+
+		// 3Dモデルの描画後処理
+		Model::PostDraw();
+		break;
 	}
 
-	
-	
+	fade_->Draw();
 
 	// ラインを描画
 	// PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});

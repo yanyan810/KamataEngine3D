@@ -103,7 +103,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	scene = Scene::kTitle; // シーンをタイトルに設定
 
-	#ifdef _DEBUG
+	/*#ifdef _DEBUG
 	scene = Scene::kGame;
 
 	gameScene = new GameScene();
@@ -113,7 +113,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	titleScene = new TitleScene();
 	titleScene->Initialize();
-#endif
+#endif*/
 	
 	titleScene = new TitleScene();
 	// タイトルシーンの初期化
