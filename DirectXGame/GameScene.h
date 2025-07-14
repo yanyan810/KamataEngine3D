@@ -51,6 +51,7 @@ public:
 	// 3Dモデル
 	KamataEngine::Model* playerModel_ = nullptr;
 	KamataEngine::Model* enemyModel_ = nullptr;
+	KamataEngine::Model* attackModel_ = nullptr; 
 	// ブロックモデル
 	KamataEngine::Model* modelBlock_ = nullptr;
 	//パーティクル

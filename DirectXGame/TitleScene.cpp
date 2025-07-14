@@ -13,6 +13,8 @@ void TitleScene::Initialize() {
 
 	titlePosition_ = {-14.0f, 12.0f, 0.0f}; // タイトルの位置
 
+	attackModel_ = KamataEngine::Model::CreateFromOBJ("attak", true); // 攻撃用のモデル
+
 	// カメラの生成（←これが重要！）
 	camera_ = new KamataEngine::Camera();
 	camera_->Initialize(); // ← これが必須！
@@ -24,7 +26,7 @@ void TitleScene::Initialize() {
 	title_->Initialize(titleModel_,  camera_, titlePosition_);
 
 	player_ = new Player();
-	player_->Initialize(playerModel_, playerTextureHandle_, camera_, playerPosition_);
+	player_->Initialize(playerModel_, playerTextureHandle_ ,attackModel_,camera_, playerPosition_);
 
 	fade_ = new Fade();
 	fade_->Initialize(); // フェードの初期化
