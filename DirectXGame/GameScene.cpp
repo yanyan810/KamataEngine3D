@@ -23,7 +23,7 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 	// ぱーてぃくる
 	modelParticle_ = Model::CreateFromOBJ("deth", true);
-	//あたっく
+	// あたっく
 	attackModel_ = Model::CreateFromOBJ("attak", true);
 
 	// ワールドトランスフォームの初期化
@@ -113,6 +113,12 @@ void GameScene::Initialize() {
 	fade_->Start(Fade::Status::FadeIn, duration_);
 
 	phase_ = Phase::kFadeIn;
+
+	// ヒットエフェクト用のモデル読み込み
+	hitEffectModel_ = Model::CreateFromOBJ("hitEffect", true);
+	HitEffect::SetModel(hitEffectModel_);
+	// ヒットエフェクト用のカメラ設定
+	HitEffect::SetCamera(&camera_);
 }
 
 GameScene::~GameScene() {
@@ -126,6 +132,8 @@ GameScene::~GameScene() {
 	delete skydome_;
 	delete cameraController_;
 	delete mapChipField_;
+	delete hitEffectModel_;
+	hitEffects_.clear();
 	enemies_.clear();
 	// ワールドトランスフォームの解放
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -140,6 +148,10 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+	for (HitEffect* hitEffect : hitEffects_) {
+		delete hitEffect;
+	}
+
 	delete deathParticles_;
 	delete fade_;
 }
@@ -342,7 +354,7 @@ void GameScene::Update() {
 
 	switch (phase_) {
 	case Phase::kFadeIn:
-		
+
 		// ▼ kPlay 相当の処理を実行
 		debugCamera_->Update();
 		player_->Updata();
@@ -366,7 +378,7 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kPlay:
-	//	fade_->Update();
+		//	fade_->Update();
 		// ゲームプレイ中の処理
 
 		//// スプライトの今の座標を取得
@@ -416,6 +428,12 @@ void GameScene::Update() {
 			return false; // 削除しない
 		});
 
+		for (HitEffect* hitEffect : hitEffects_) {
+			if (hitEffect) {
+				hitEffect->Update();
+			}
+		}
+
 		//}
 		// ブロックの更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -457,13 +475,19 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kDeath:
-	//	fade_->Update();
+		//	fade_->Update();
 		// 天球の処理
 		skydome_->Update();
 
 		for (Enemy* enemy : enemies_) {
 			if (enemy) {
 				enemy->Update();
+			}
+		}
+
+		for (HitEffect* hitEffect : hitEffects_) {
+			if (hitEffect) {
+				hitEffect->Update();
 			}
 		}
 
@@ -501,7 +525,7 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kFadeOut:
-	//	fade_->Update();
+		//	fade_->Update();
 		// 天球の処理
 		skydome_->Update();
 
@@ -572,6 +596,12 @@ void GameScene::Draw() {
 			}
 		}
 
+		for (HitEffect* hitEffect : hitEffects_) {
+			if (hitEffect) {
+				hitEffect->Draw();
+			}
+		}
+
 		//}
 		// === Skydome描画（背景） ===
 		skydome_->Draw();
@@ -620,6 +650,12 @@ void GameScene::Draw() {
 		for (Enemy* enemy : enemies_) {
 			if (enemy) {
 				enemy->Draw();
+			}
+		}
+
+		for (HitEffect* hitEffect : hitEffects_) {
+			if (hitEffect) {
+				hitEffect->Draw();
 			}
 		}
 
