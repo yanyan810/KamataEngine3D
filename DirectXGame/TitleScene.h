@@ -43,6 +43,9 @@ public:
 
 	Fade* fade_ = nullptr;
 
+	KamataEngine::Model* attackModel_ = nullptr; // 攻撃用のモデル
+
+
 private:
 	KamataEngine::Vector3 titlePosition_ ; // タイトルの位置
 

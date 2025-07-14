@@ -23,6 +23,8 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 	// ぱーてぃくる
 	modelParticle_ = Model::CreateFromOBJ("deth", true);
+	//あたっく
+	attackModel_ = Model::CreateFromOBJ("attak", true);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -70,10 +72,10 @@ void GameScene::Initialize() {
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
+	KamataEngine::Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 6);
 
 	// 座標をマップチップ番号で指定
-	player_->Initialize(playerModel_, playerTextureHandle_, &camera_, playerPosition);
+	player_->Initialize(playerModel_, playerTextureHandle_, attackModel_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
 	cameraController_ = new CameraController();
@@ -94,7 +96,7 @@ void GameScene::Initialize() {
 	//=======
 	// 敵
 	//=======
-	for (int32_t i = 0; i < 3; i++) {
+	for (int32_t i = 0; i < 1; i++) {
 
 		Enemy* newEnemy = new Enemy();
 

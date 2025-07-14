@@ -1,9 +1,11 @@
 #pragma once
+#include "AABB.h"
 #include "KamataEngine.h"
 #include "Matrix4x4_.h"
 #include "WorldTransformClass.h"
 #include <cassert>
-#include "AABB.h"
+
+// 02_14の29ページから再開
 
 class MapChipField;
 
@@ -14,20 +16,17 @@ class Enemy;
 /// </summary>
 class Player {
 
-	
-
 public:
-
 	enum class LRDirection {
 		kRight,
 		kLeft,
 	};
 
 	enum Corner {
-		kRightBottom,//右下
-		kLeftBottom,//左下
-		kRightTop,//右上
-		kLeftTop,//左上
+		kRightBottom, // 右下
+		kLeftBottom,  // 左下
+		kRightTop,    // 右上
+		kLeftTop,     // 左上
 
 		kNumCenter // 要素数
 	};
@@ -35,9 +34,25 @@ public:
 	// マップとの当たり判定情報
 	struct ColisionMapInfo {
 		bool celling = false;            // 天井
-		bool landing = false;           // 床
+		bool landing = false;            // 床
 		bool isWall = false;             // 壁
 		KamataEngine::Vector3 velosity_; // 移動量
+	};
+
+	// ふるまい
+	enum class Behavior {
+		kRoot,    // 通常状態
+		kAttak,   // 攻撃中
+		kUnKnown, // 不明状態
+	};
+
+	// 攻撃フェーズ(型)
+	enum class AttakFase {
+
+		kChage,     // チャージ
+		kAttack,    // 攻撃
+		kAfterglow, // 余韻
+		kUnKnown,   // 不明状態
 	};
 
 	/// <summary>
@@ -45,7 +60,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="textureHandle">テクスチャハンドル</param>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* attackModel, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	/// <summary>
 	/// 更新
@@ -89,6 +104,8 @@ public:
 
 	void OnCollision(const Enemy* enemy);
 
+	void TurnUpdata();
+
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 2.0f;
 	static inline const float kHeight = 2.0f;
@@ -107,8 +124,25 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
-private:
+	void BehaviorRootUpdate();
 
+	void BehaviorAttackUpdate();
+
+	// 通常行動初期化
+	void BehaviorRootInitialize();
+
+	// 攻撃行動初期化
+	void BehaviorAttackInitialize();
+
+	AttakFase attakFase_ = AttakFase::kUnKnown; // 攻撃フェーズ
+
+	void ChageUpdate();
+
+	void AttackUpdate();
+
+	void AfterglowUpdate();
+
+private:
 	KamataEngine::Model* model_ = nullptr;
 
 	KamataEngine::Camera* camera_ = nullptr;
@@ -116,6 +150,9 @@ private:
 	uint32_t textureHandle_ = 0u;
 
 	KamataEngine::Vector3 velosity_ = {};
+
+	KamataEngine::Model* attackModel_ = nullptr;
+	KamataEngine::WorldTransform worldTransformAttack_;
 
 	static inline const float kAcceleration = 0.05f;
 
@@ -147,8 +184,23 @@ private:
 	static inline const float smallNum = 0.05f;
 	static inline const float kAttenuationWall = 0.01f;
 	const float kEpsilon = 0.01f;
-	//デスフラグ
+	// デスフラグ
 	bool isDead_ = false;
 	float rotateTimer_ = 0.0f;
+	// ふるまい
+	Behavior behavior_ = Behavior::kRoot;
+	// 次の振る舞いリクエスト
+	Behavior behaviorRequest_ = Behavior::kUnKnown;
+	// 攻撃ギミックの経過時間カウンター
+	uint32_t attackParameter_ = 0;
 
+	static inline const float kAttackTime = 20.0f; // 攻撃時間
+
+	static inline const float chageTime = 10.0f; // チャージ時間
+
+	static inline const float kAfterglowTime = 1.0f; // 余韻時間
+
+	static inline const float attakVelosity = 0.8f; // 突進距離
+
+	KamataEngine::WorldTransform correctionTransform; // マップチップの座標補正用
 };
