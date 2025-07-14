@@ -103,6 +103,7 @@ void GameScene::Initialize() {
 		// 敵の初期化
 		KamataEngine::Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(8 + (i * 2), 18);
 		newEnemy->Initialize(enemyModel_, &camera_, enemyPosition);
+		newEnemy->SetGameScene(this); // 🔴 GameSceneを渡すのを忘れずに！
 		enemies_.push_back(newEnemy);
 	}
 
@@ -115,7 +116,7 @@ void GameScene::Initialize() {
 	phase_ = Phase::kFadeIn;
 
 	// ヒットエフェクト用のモデル読み込み
-	hitEffectModel_ = Model::CreateFromOBJ("hitEffect", true);
+	hitEffectModel_ = Model::CreateFromOBJ("hit", true);
 	HitEffect::SetModel(hitEffectModel_);
 	// ヒットエフェクト用のカメラ設定
 	HitEffect::SetCamera(&camera_);
@@ -219,6 +220,13 @@ void GameScene::CheckAllCollisions() {
 #pragma region 自分の弾と敵の当たり判定
 
 #pragma endregion
+}
+
+void GameScene::CreateHitEffect(KamataEngine::Vector3& spawnPosition) {
+	// ヒットエフェクトの生成
+	HitEffect* newHitEffect = HitEffect::Create(spawnPosition);
+
+	hitEffects_.push_back(newHitEffect);
 }
 
 void GameScene::Update() {
@@ -595,12 +603,7 @@ void GameScene::Draw() {
 				enemy->Draw();
 			}
 		}
-
-		for (HitEffect* hitEffect : hitEffects_) {
-			if (hitEffect) {
-				hitEffect->Draw();
-			}
-		}
+		
 
 		//}
 		// === Skydome描画（背景） ===
@@ -608,6 +611,11 @@ void GameScene::Draw() {
 
 		if (isDethParticlesActive_) {
 			deathParticles_->Draw();
+		}
+
+		for (HitEffect* hitEffect : hitEffects_) {
+
+			hitEffect->Draw();
 		}
 
 		// 3Dモデルの描画後処理
@@ -654,9 +662,8 @@ void GameScene::Draw() {
 		}
 
 		for (HitEffect* hitEffect : hitEffects_) {
-			if (hitEffect) {
-				hitEffect->Draw();
-			}
+
+			hitEffect->Draw();
 		}
 
 		//}

@@ -3,7 +3,9 @@
 #include "KamataEngine.h"
 #include "WorldTransformClass.h"
 #include "Easing.h"
+#include "GameScene.h"
 class Player;
+class GameScene;
 
 class Enemy {
 
@@ -30,6 +32,10 @@ public:
 	bool IsDead() const { return isDead_; }
 
 	bool IsCollisionDisabled() const { return isCollisionDisabled_; }
+
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
+
+	GameScene* gameScene_; // ゲームシーンへのポインタ
 
 private:
 	KamataEngine::WorldTransform worldTransform_;

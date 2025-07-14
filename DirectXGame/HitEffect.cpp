@@ -36,6 +36,8 @@ void HitEffect::Update() {
 
 void HitEffect::Draw() {
 	// モデルが設定されている場合のみ描画
+
+
 	if (model_) {
 		model_->Draw(circleWorldTransform, *camera_);
 	}

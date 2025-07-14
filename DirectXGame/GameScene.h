@@ -44,7 +44,7 @@ public:
 
 	void ChangePhase();
 
-	void CreateHitEffect(const KamataEngine::Vector3& spawnPosition);
+	void CreateHitEffect(KamataEngine::Vector3& spawnPosition);
 
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;

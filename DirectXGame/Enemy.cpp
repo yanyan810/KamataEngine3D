@@ -48,6 +48,12 @@ void Enemy::OnCollision(const Player* player) {
 		behaviorRequest_ = Behavior::kDeath; // プレイヤーが攻撃した場合、死亡状態に遷移する
 	}
 
+	//敵と自キャラの中間位置にエフェクトを生成
+	KamataEngine::Vector3 effectPos = {
+	    (worldTransform_.translation_.x + player->GetPosition().x) / 2.0f, (worldTransform_.translation_.y + player->GetPosition().y) / 2.0f,
+	    (worldTransform_.translation_.z + player->GetPosition().z) / 2.0f};
+	gameScene_->CreateHitEffect(effectPos);
+
 }
 
 AABB Enemy::GetAABB() {
