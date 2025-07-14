@@ -96,7 +96,7 @@ void GameScene::Initialize() {
 	//=======
 	// 敵
 	//=======
-	for (int32_t i = 0; i < 1; i++) {
+	for (int32_t i = 0; i < kEnemyNum; i++) {
 
 		Enemy* newEnemy = new Enemy();
 
@@ -182,6 +182,9 @@ void GameScene::CheckAllCollisions() {
 
 	// 自キャラと敵全ての当たり判定
 	for (Enemy* enemy : enemies_) {
+		if (enemy->IsCollisionDisabled())
+			continue; // 当たり判定が無効な敵はスキップ
+
 		if (!enemy)
 			continue; // nullptrチェック
 		// 敵の座標
@@ -404,6 +407,14 @@ void GameScene::Update() {
 				enemy->Update();
 			}
 		}
+
+		enemies_.remove_if([](Enemy* enemy) {
+			if (enemy->IsDead()) {
+				delete enemy; // メモリ解放
+				return true;  // リストから削除
+			}
+			return false; // 削除しない
+		});
 
 		//}
 		// ブロックの更新

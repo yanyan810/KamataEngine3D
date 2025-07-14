@@ -7,20 +7,6 @@
 #include <cmath>
 #include <numbers>
 
-float Lerp(float a, float b, float t) { return a + (b - a) * t; }
-
-float EaseOut(float x, float y, float t) {
-	t = std::clamp(t, 0.0f, 1.0f);                 // 補間範囲を安全に固定
-	float easedT = 1.0f - (1.0f - t) * (1.0f - t); // EaseOutQuad
-	return x + (y - x) * easedT;
-}
-
-float EaseIn(float x, float y, float t) {
-	t = std::clamp(t, 0.0f, 1.0f); // 安全な範囲に固定
-	float easedT = t * t;          // EaseInQuad
-	return x + (y - x) * easedT;
-}
-
 KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Player::Corner corner) {
 	KamataEngine::Vector3 offsetTable[Player::Corner::kNumCenter] = {
 	    {+Player::kWidth / 2.0f, -Player::kHeight / 2.0f, 0.0f}, // kRightBottom
@@ -373,6 +359,10 @@ void Player::OnCollision(const Enemy* enemy) {
 	// velosity_.y += 1.0f;
 	// velosity_.z += 1.0f;
 
+	 if (IsAttack()) {
+		return; // 無敵中なら何もしない
+	}
+
 	isDead_ = true;
 }
 
@@ -525,7 +515,7 @@ void Player::BehaviorAttackInitialize() {
 		correctionTransform.translation_.x = -2.0f;
 	}
 
-
+	   isAttack_ = true; // 攻撃開始時に無敵にする
 }
 
 void Player::ChageUpdate() {
@@ -640,7 +630,7 @@ Vector3 attackVelosity = {}; // 初期化
 		attackParameter_ = 0;
 		attakFase_ = AttakFase::kUnKnown;
 
-		// 落下が再開されるように接地状態を解除
+		isAttack_ = false;
 	
 
 	}

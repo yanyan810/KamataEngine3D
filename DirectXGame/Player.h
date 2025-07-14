@@ -4,6 +4,7 @@
 #include "Matrix4x4_.h"
 #include "WorldTransformClass.h"
 #include <cassert>
+#include "Easing.h"
 
 // 02_14の29ページから再開
 
@@ -142,6 +143,8 @@ public:
 
 	void AfterglowUpdate();
 
+	bool IsAttack() const { return isAttack_; }
+
 private:
 	KamataEngine::Model* model_ = nullptr;
 
@@ -203,4 +206,8 @@ private:
 	static inline const float attakVelosity = 0.8f; // 突進距離
 
 	KamataEngine::WorldTransform correctionTransform; // マップチップの座標補正用
+
+	//攻撃フラグ
+	bool isAttack_ = false;
+
 };

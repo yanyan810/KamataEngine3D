@@ -121,4 +121,6 @@ private:
 
 	float duration_ = 1.0f;
 
+	static inline const int kEnemyNum = 3; // 敵の数
+
 };
