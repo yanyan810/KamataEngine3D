@@ -19,10 +19,6 @@ void GameScene::Initialize() {
 	//カメラの初期化
 	camera_.Initialize();
 
-
-	//サウンドデータの読み込み
-	soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
-
 	//音声再生
 	Audio::GetInstance()->PlayWave(soundDataHandle_);
 
