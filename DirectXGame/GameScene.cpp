@@ -30,12 +30,23 @@ GameScene::~GameScene() {
 
 void GameScene::Update() {
 
+	  viewProjection_.UpdateMatrix(); // ←これが必要！
+
 	player_->Updata(); 
 
 }
 
 void GameScene::Draw() { 
 	
-	player_->Draw(viewProjection_); 
+	  DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	// モデルの描画前処理（これが cmdList をセットする）
+	Model::PreDraw(dxCommon->GetCommandList());
+
+	// モデル描画
+	player_->Draw(viewProjection_);
+
+	// モデルの描画後処理
+	Model::PostDraw();
 
 }
