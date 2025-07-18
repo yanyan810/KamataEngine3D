@@ -359,7 +359,7 @@ void Player::OnCollision(const Enemy* enemy) {
 	// velosity_.y += 1.0f;
 	// velosity_.z += 1.0f;
 
-	 if (IsAttack()) {
+	if (IsAttack()) {
 		return; // 無敵中なら何もしない
 	}
 
@@ -379,13 +379,10 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 
-	
-
 	worldTransformAttack_.Initialize();
 	worldTransformAttack_.translation_ = position;
 	worldTransformAttack_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransformAttack_.rotation_.y = std::numbers::pi_v<float> / 2.0f; // 初期角度を90度に設定
-
 }
 
 void Player::PlayerMove() {
@@ -476,9 +473,6 @@ void Player::TurnUpdata() {
 		worldTransform_.rotation_.y = worldTransform_.rotation_.y = Lerp(turnFirstRotationY_, destinationRotationY, t);
 		;
 	}
-
-
-
 }
 
 void Player::WorldPosUpdate(const ColisionMapInfo& info) {
@@ -488,10 +482,7 @@ void Player::WorldPosUpdate(const ColisionMapInfo& info) {
 	worldTransform_.translation_.z += info.velosity_.z;
 }
 
-void Player::BehaviorRootInitialize() {
-	velosity_ = {0.0f, 0.0f, 0.0f};
-	
-}
+void Player::BehaviorRootInitialize() { velosity_ = {0.0f, 0.0f, 0.0f}; }
 
 void Player::BehaviorAttackInitialize() {
 	// カウンター初期化
@@ -507,15 +498,15 @@ void Player::BehaviorAttackInitialize() {
 	attakFase_ = AttakFase::kChage;
 
 	if (lrDirection_ == LRDirection::kRight) {
-	
+
 		correctionTransform.translation_.x = 2.0f;
 
 	} else if (lrDirection_ == LRDirection::kLeft) {
-		
+
 		correctionTransform.translation_.x = -2.0f;
 	}
 
-	   isAttack_ = true; // 攻撃開始時に無敵にする
+	isAttack_ = true; // 攻撃開始時に無敵にする
 }
 
 void Player::ChageUpdate() {
@@ -561,19 +552,15 @@ void Player::AttackUpdate() {
 void Player::AfterglowUpdate() {
 	switch (attakFase_) {
 	case Player::AttakFase::kAfterglow:
-		
+
 		// 余韻動作のスケール変化
-	float t = static_cast<float>(attackParameter_) / kAfterglowTime;
+		float t = static_cast<float>(attackParameter_) / kAfterglowTime;
 		worldTransform_.scale_.z = EaseOut(1.3f, 1.0f, t);
 		worldTransform_.scale_.y = EaseOut(0.7f, 1.0f, t);
 
 		break;
-	
 	}
-
-
 }
-
 
 void Player::BehaviorRootUpdate() {
 
@@ -587,7 +574,7 @@ void Player::BehaviorAttackUpdate() {
 
 	attackParameter_++;
 
-Vector3 attackVelosity = {}; // 初期化
+	Vector3 attackVelosity = {}; // 初期化
 
 	// 攻撃フェーズごとの更新処理
 	switch (attakFase_) {
@@ -608,7 +595,6 @@ Vector3 attackVelosity = {}; // 初期化
 			correctionTransform.translation_.x = -2.0f;
 		}
 
-		
 		break;
 
 	case Player::AttakFase::kAfterglow:
@@ -622,7 +608,6 @@ Vector3 attackVelosity = {}; // 初期化
 	}
 	velosity_ = attackVelosity;
 
-	
 	// フェーズがすべて終わったら元に戻す
 	if (attackParameter_ > kAttackTime + kAfterglowTime) {
 		behaviorRequest_ = Behavior::kRoot;
@@ -631,17 +616,13 @@ Vector3 attackVelosity = {}; // 初期化
 		attakFase_ = AttakFase::kUnKnown;
 
 		isAttack_ = false;
-	
-
 	}
 
-		// トランスフォームの値のコピー
+	// トランスフォームの値のコピー
 	worldTransformAttack_.translation_ = worldTransform_.translation_;
 	// worldTransformAttack_.translation_.x += correctionTransform.translation_.x;
 	worldTransformAttack_.rotation_ = worldTransform_.rotation_;
-
 }
-
 
 void Player::Updata() {
 
@@ -650,18 +631,13 @@ void Player::Updata() {
 	worldTransformAttack_.matWorld_ = MakeAffineMatrix(worldTransformAttack_.scale_, worldTransformAttack_.rotation_, worldTransformAttack_.translation_);
 	worldTransformAttack_.TransferMatrix();
 
-
 	ColisionMapInfo collisionMapInfo;
-	
-
 
 	// 移動処理
-	 if (behavior_ == Behavior::kRoot) {
-	PlayerMove(); // 通常時のみ移動
+	if (behavior_ == Behavior::kRoot) {
+		PlayerMove(); // 通常時のみ移動
 	}
-	 TurnUpdata();
-
-	
+	TurnUpdata();
 
 	/*if (worldTransform_.translation_.y < 2.0f) {
 	    worldTransform_.translation_.y = 2.0f;
@@ -700,12 +676,8 @@ void Player::Updata() {
 
 		BehaviorAttackUpdate();
 
-		
-
 		break;
 	}
-
-	
 
 	collisionMapInfo.velosity_ = velosity_;
 
@@ -733,7 +705,6 @@ void Player::Updata() {
 
 	WorldTrnasformUpdate(worldTransformAttack_);
 	WorldTrnasformUpdate(worldTransform_);
-	
 
 	ImGui::Text("isWall  : %s", collisionMapInfo.isWall ? "true" : "false");
 	ImGui::Text("isGround  : %s", collisionMapInfo.landing ? "true" : "false");
@@ -758,17 +729,16 @@ void Player::TitleUpdata() {
 	WorldTrnasformUpdate(worldTransform_);
 }
 
-void Player::Draw() { 
+void Player::Draw() {
+
+	// 自キャラの描画
+	model_->Draw(worldTransform_, *camera_, textureHandle_);
+	// 攻撃モデルの描画
 
 	
-	// 自キャラの描画
-	model_->Draw(worldTransform_, *camera_, textureHandle_); 
-		// 攻撃モデルの描画
 	if (attakFase_ == AttakFase::kAttack) {
 		attackModel_->Draw(worldTransformAttack_, *camera_);
 	}
-
-	
 }
 
 void Player::SetPosition(const KamataEngine::Vector3& position) { worldTransform_.translation_ = position; }

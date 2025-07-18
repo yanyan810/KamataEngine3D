@@ -8,8 +8,8 @@
 #include "Enemy.h"
 #include "AABB.h"
 #include "DethParticles.h"
-
 #include "Fade.h"
+#include "HitEffect.h"
 
 enum class Phase { 
 	kFadeIn, 
@@ -44,6 +44,8 @@ public:
 
 	void ChangePhase();
 
+	void CreateHitEffect(KamataEngine::Vector3& spawnPosition);
+
 	// スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
 	KamataEngine::Sprite* playerSprite_ = nullptr;
@@ -56,6 +58,9 @@ public:
 	KamataEngine::Model* modelBlock_ = nullptr;
 	//パーティクル
 	KamataEngine::Model* modelParticle_ = nullptr;
+	//ヒットエフェクト用のモデル
+	KamataEngine::Model* hitEffectModel_ = nullptr;
+
 	//テクスチャハンドル
 	uint32_t dethTextureHandle_ = 0; // テクスチャハンドル
 
@@ -69,8 +74,9 @@ public:
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	Player* player_ = nullptr;
-
+	//リスト
 	std::list<Enemy*> enemies_;
+	std::list<HitEffect*> hitEffects_;
 
 	Skydome* skydome_ = nullptr;
 
