@@ -36,6 +36,8 @@ public:
 	
 
 private:
+
+	KamataEngine::Input* input_ = nullptr;
 	
 	KamataEngine::WorldTransform worldTransform_; // ワールド変形
 	KamataEngine::Model* model_ = nullptr;        // モデル
