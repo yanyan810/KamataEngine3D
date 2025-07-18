@@ -593,9 +593,10 @@ void GameScene::Draw() {
 				modelBlock_->Draw(*worldTransformBlock, camera_, textureHandle_);
 			}
 		}
+
 		// 自キャラの描画
 		player_->Draw();
-
+	
 		// 敵の描画
 		// if (enemy_ != nullptr) {
 		for (Enemy* enemy : enemies_) {
@@ -603,7 +604,6 @@ void GameScene::Draw() {
 				enemy->Draw();
 			}
 		}
-		
 
 		//}
 		// === Skydome描画（背景） ===

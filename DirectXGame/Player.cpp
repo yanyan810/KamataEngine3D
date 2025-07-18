@@ -734,6 +734,8 @@ void Player::Draw() {
 	// 自キャラの描画
 	model_->Draw(worldTransform_, *camera_, textureHandle_);
 	// 攻撃モデルの描画
+
+	
 	if (attakFase_ == AttakFase::kAttack) {
 		attackModel_->Draw(worldTransformAttack_, *camera_);
 	}
