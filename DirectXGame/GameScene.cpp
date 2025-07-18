@@ -31,13 +31,7 @@ void GameScene::Initialize() {
 	// カメラの初期化
 	camera_.farZ = 1000.0f; // カメラの奥行きの最大値を設定
 	camera_.Initialize();
-
-	// サウンドデータの読み込み
-	// soundDataHandle_ = Audio::GetInstance()->LoadWave("fanfare.wav");
-
-	// 音声再生
-	// Audio::GetInstance()->PlayWave(soundDataHandle_);
-
+  
 	// voiceHandle_ = Audio::GetInstance()->PlayWave(soundDataHandle_, true);
 
 	// ライン描画が参照するカメラを指定する(アドレス渡し)
