@@ -7,27 +7,25 @@ using namespace KamataEngine;
 
 
 
-GameScene* gameScene = nullptr; // ゲームシーンのインスタンス
-
-
-
 
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
-	//エンジンの初期化
-	KamataEngine::Initialize(L"LE2B_25_ミヤザワ_ハルヒ_TR");
+		// エンジンの初期化
+	KamataEngine::Initialize(L"LE2B_25_ミヤザワ_ハルヒ_AL3");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	//ImGuiManagerインスタンスの取得
+	// ImGuiManagerインスタンスの取得
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
-	
-gameScene = new GameScene();
+	// ゲームシーンのインスタンス生成
+	GameScene* gameScene = new GameScene();
 	// ゲームシーンの初期化
-	gameScene->Initialize();	
+	gameScene->Initialize();
+
+
 
 	/*#ifdef _DEBUG
 	scene = Scene::kGame;
@@ -41,8 +39,7 @@ gameScene = new GameScene();
 	titleScene->Initialize();
 #endif*/
 	
-
-
+	
 
 	//メインループ
 	while (true) {

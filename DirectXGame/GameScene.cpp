@@ -9,9 +9,9 @@ using namespace KamataEngine;
 
 void GameScene::Initialize() {
 	// 初期化処理
-	viewProjection = new Camera();
-	// カメラの初期化
-	viewProjection->Initialize();
+	
+	viewProjection_.Initialize();
+	worldTransform_.Initialize();
 
 	playerModel = Model::Create();
 	playerTextureHandle_ = KamataEngine::TextureManager::Load("sample.png");
@@ -36,6 +36,6 @@ void GameScene::Update() {
 
 void GameScene::Draw() { 
 	
-	player_->Draw(*viewProjection); 
+	player_->Draw(viewProjection_); 
 
 }

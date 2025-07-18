@@ -36,7 +36,7 @@ private:
 	KamataEngine::Model* playerModel = nullptr; // プレイヤーのモデル
 	uint32_t playerTextureHandle_ = 0;                          // プレイヤーのテクスチャハンドル
 	
-	KamataEngine::Camera* viewProjection = nullptr;
-
+	KamataEngine::Camera viewProjection_;
+	KamataEngine::WorldTransform worldTransform_;
 
 };
