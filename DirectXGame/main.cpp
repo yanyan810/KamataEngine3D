@@ -55,7 +55,7 @@ gameScene = new GameScene();
 		imguiManager->Begin();
 
 		
-
+		gameScene->Update();
 	
 		
 
@@ -65,7 +65,8 @@ gameScene = new GameScene();
 		//描画開始
 		dxCommon->PreDraw();
 
-		
+		gameScene->Draw();
+
 		//軸表示の描画
 		AxisIndicator::GetInstance()->Draw();
 

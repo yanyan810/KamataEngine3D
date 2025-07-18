@@ -1,13 +1,19 @@
 #include "GameScene.h"
 // #include "PrimitiveDrawer.h"
 
+// AL302_13の27ページから再開
+
+
 using namespace KamataEngine;
 
-// AL302_13の27ページから再開
 
 void GameScene::Initialize() {
 	// 初期化処理
-	playerModel = Model::CreateFromOBJ("player", true);
+	viewProjection = new Camera();
+	// カメラの初期化
+	viewProjection->Initialize();
+
+	playerModel = Model::Create();
 	playerTextureHandle_ = KamataEngine::TextureManager::Load("sample.png");
 	player_ = new Player();
 	player_->Initialize(playerModel, playerTextureHandle_);
@@ -30,6 +36,6 @@ void GameScene::Update() {
 
 void GameScene::Draw() { 
 	
-	player_->Draw(); 
+	player_->Draw(*viewProjection); 
 
 }

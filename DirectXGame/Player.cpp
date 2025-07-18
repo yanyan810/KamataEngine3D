@@ -1,6 +1,9 @@
 #define NOMINMAX
 #include "Player.h"
 
+using namespace KamataEngine;
+
+
 void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 
 	assert(model);
@@ -12,8 +15,10 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 
 void Player::Updata() {
 
+	worldTransform_.TransferMatrix();
+
 }
 
-void Player::Draw() {
-
+void Player::Draw(Camera& viewProjection) {
+	model_->Draw(worldTransform_,viewProjection ,textureHandle_);
 }
