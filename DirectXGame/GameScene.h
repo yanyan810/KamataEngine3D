@@ -1,15 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Player.h"
-
-enum class Phase { 
-	kFadeIn, 
-	kPlay, 
-	kDeath,
-	kFadeOut
-};
-
-
+#include "Enemy.h"
 
 // ゲームシーン
 class GameScene {
@@ -31,17 +23,20 @@ public:
 	
 
 private:
-	
-	Player* player_=nullptr;                              // プレイヤーのインスタンス
+	Player* player_ = nullptr;                  // プレイヤーのインスタンス
 	KamataEngine::Model* playerModel = nullptr; // プレイヤーのモデル
-	uint32_t playerTextureHandle_ = 0;                          // プレイヤーのテクスチャハンドル
-	
+	uint32_t playerTextureHandle_ = 0;          // プレイヤーのテクスチャハンドル
+
+	Enemy* enemy_ = nullptr;
+	KamataEngine::Model* enemyModel_ = nullptr;
+	uint32_t enemyTextureHandle_ = 0;
+
 	KamataEngine::Camera viewProjection_;
 	KamataEngine::WorldTransform worldTransform_;
 
 	bool isDebugCameraActive_ = false;
 
-	//デバッグカメラ
+	// デバッグカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	KamataEngine::Input* input_ = nullptr;

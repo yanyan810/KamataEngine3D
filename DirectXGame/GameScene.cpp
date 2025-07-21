@@ -14,9 +14,17 @@ void GameScene::Initialize() {
 	worldTransform_.Initialize();
 
 	playerModel = Model::Create();
-	playerTextureHandle_ = KamataEngine::TextureManager::Load("sample.png");
+	playerTextureHandle_ = TextureManager::Load("sample.png");
 	player_ = new Player();
 	player_->Initialize(playerModel, playerTextureHandle_);
+
+	enemyModel_ = Model::Create();
+	enemyTextureHandle_ = TextureManager::Load("uvChecker.png");
+	enemy_ = new Enemy();
+
+	Vector3 position = {0.0f, 0.0f, -20};
+
+	enemy_->Initialize(enemyModel_, position, enemyTextureHandle_);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 	input_ = Input::GetInstance();
@@ -67,6 +75,12 @@ if (input_->TriggerKey(DIK_TAB)) {
 	}
 
 		player_->Updata(); 
+
+		if (enemy_) {
+
+		    enemy_->Update();
+	    }
+
 	ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
 	    ImGui::Text("Space Trigger: %s", input_->TriggerKey(DIK_SPACE) ? "Triggered" : "Not triggered");
 	    ImGui::Text("DebugCamera Active: %s", isDebugCameraActive_ ? "True" : "False");
@@ -81,6 +95,12 @@ void GameScene::Draw() {
 
 	// モデル描画
 	player_->Draw(viewProjection_);
+
+	
+		if (enemy_) {
+
+		enemy_->Draw(viewProjection_);
+	}
 
 	// モデルの描画後処理
 	Model::PostDraw();
