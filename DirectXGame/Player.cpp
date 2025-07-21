@@ -14,15 +14,45 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 
 }
 
+void Player::Rotate() {
+	//回転速さ
+	const float kRotSpeed = 0.02f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_A)) {
+		worldTransform_.rotation_.y -= kRotSpeed;
+	} else if (input_->PushKey(DIK_D)){
+
+		worldTransform_.rotation_.y += kRotSpeed;
+
+	}
+
+
+}
+
+void Player::Attack() { 
+	if (input_->TriggerKey(DIK_SPACE)) {
+
+		//球を生成し初期化
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_);
+
+		//球を登録
+		bullet_ = newBullet;
+
+	}
+
+}
+
 void Player::Updata() {
 	
-	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
-
-	worldTransform_.TransferMatrix();
+WorldTrnasformUpdate(worldTransform_);
 
 	Vector3 move = {0, 0, 0};
 	//移動速度
 	const float kCharacterSpeed = 0.2f;
+
+	Rotate();
 
 	//押した方向でベクトル変更
 	if (input_->PushKey(DIK_LEFT)) {
@@ -42,6 +72,14 @@ void Player::Updata() {
 	const float kMoveLimitX = 34.0f;
 	const float kMoveLimitY = 18.0f;
 
+	Attack();
+
+	//弾更新
+	if (bullet_) {
+	
+	bullet_->Updata();
+	
+	}
 
 
 	//座標移動
@@ -61,4 +99,9 @@ void Player::Updata() {
 
 void Player::Draw(Camera& viewProjection) {
 	model_->Draw(worldTransform_,viewProjection ,textureHandle_);
+
+	if (bullet_) {
+		bullet_->Draw(viewProjection);
+	}
+
 }
