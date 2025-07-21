@@ -110,6 +110,8 @@
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="DethParticles.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyState_Approach.cpp" />
+    <ClCompile Include="EnemyState_Leave.cpp" />
     <ClCompile Include="Fade.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="HitEffect.cpp" />
@@ -205,6 +207,9 @@
     <ClInclude Include="DethParticles.h" />
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyState.h" />
+    <ClInclude Include="EnemyState_Approach.h" />
+    <ClInclude Include="EnemyState_Leave.h" />
     <ClInclude Include="Fade.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="HitEffect.h" />
