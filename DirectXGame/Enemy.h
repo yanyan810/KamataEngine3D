@@ -5,11 +5,6 @@
 #include "Easing.h"
 #include "Operator.h"
 
-	enum class Phase {
-	Approach, // 接近する
-	Leave,    // 離脱する
-	Unknown,
-};
 
 class Enemy {
 
@@ -28,10 +23,13 @@ public:
 
 	private:
 
+			using StateFunc = void (Enemy::*)(); // 状態関数型（メンバ関数ポインタ）
+	    StateFunc stateFunc_ = nullptr;      // 現在の状態関数
+
 		KamataEngine::WorldTransform worldTransform_;
 	    KamataEngine::Model* model_ = nullptr;
 	    uint32_t textureHandle_ = 0;
 
-		Phase phase_ = Phase::Unknown;
+		//Phase phase_ = Phase::Unknown;
 
 };
