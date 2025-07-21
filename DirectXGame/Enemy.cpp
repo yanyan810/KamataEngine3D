@@ -16,6 +16,9 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
+
+	stateFunc_ = &Enemy::ApproachUpdate; // 初期状態
+
 }
 
 void Enemy::ApproachUpdate() {
@@ -27,7 +30,7 @@ void Enemy::ApproachUpdate() {
 
 	if (worldTransform_.translation_.z < 0.0f) {
 
-		phase_ = Phase::Leave;
+		stateFunc_ = &Enemy::LeaveUpdate; // 状態遷移
 	}
 
 	WorldTrnasformUpdate(worldTransform_);
@@ -46,19 +49,8 @@ void Enemy::LeaveUpdate() {
 
 void Enemy::Update() {
 
-	switch (phase_) {
-	case Phase::Approach:
-	default:
-
-		ApproachUpdate();
-
-		break;
-
-	case Phase::Leave:
-
-		LeaveUpdate();
-
-		break;
+	if (stateFunc_) {
+		(this->*stateFunc_)(); // 現在の状態関数を実行
 	}
 }
 
