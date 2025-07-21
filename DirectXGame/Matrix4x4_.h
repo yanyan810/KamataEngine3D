@@ -20,5 +20,8 @@ public:
 	static Matrix4x4_ Multiply(const Matrix4x4_& m1, const Matrix4x4_& m2);
 	static Matrix4x4_ MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translation);
 	static Matrix4x4_ Inverse(const Matrix4x4_& m);
+
+	static Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
+
 };
 } // namespace KamataEngine
