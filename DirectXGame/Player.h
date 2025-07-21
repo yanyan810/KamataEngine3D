@@ -5,6 +5,7 @@
 #include "WorldTransformClass.h"
 #include <cassert>
 #include "Easing.h"
+#include "Operator.h"
 
 // 02_14の29ページから再開
 

@@ -39,4 +39,11 @@ private:
 	KamataEngine::Camera viewProjection_;
 	KamataEngine::WorldTransform worldTransform_;
 
+	bool isDebugCameraActive_ = false;
+
+	//デバッグカメラ
+	KamataEngine::DebugCamera* debugCamera_ = nullptr;
+
+	KamataEngine::Input* input_ = nullptr;
+
 };
