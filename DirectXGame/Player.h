@@ -15,6 +15,11 @@
 class Player {
 
 public:
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
+	~Player();
 	
 	/// <summary>
 	/// 初期化
@@ -46,12 +51,15 @@ public:
 
 private:
 
-	PlayerBullet* bullet_ = nullptr;
+		// 弾
+	std::list<PlayerBullet*> bullets_;
 
 	KamataEngine::Input* input_ = nullptr;
 	
 	KamataEngine::WorldTransform worldTransform_; // ワールド変形
 	KamataEngine::Model* model_ = nullptr;        // モデル
 	uint32_t textureHandle_ = 0;                  // テクスチャハンドル
+
+
 
 };
