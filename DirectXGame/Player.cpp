@@ -39,11 +39,16 @@ void Player::Rotate() {
 void Player::Attack() { 
 	if (input_->TriggerKey(DIK_SPACE)) {
 
-		
+		//球の速度
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
 
+		//速度ベクトルを自機の向きに合わせて回転させる
+		velocity = Matrix4x4_::TransformNormal(velocity, worldTransform_.matWorld_);
+	
 		//球を生成し初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
 
 		//球を登録
 		bullets_.push_back(newBullet);
@@ -59,6 +64,17 @@ WorldTrnasformUpdate(worldTransform_);
 	Vector3 move = {0, 0, 0};
 	//移動速度
 	const float kCharacterSpeed = 0.2f;
+
+	//ですっフラグの立った球を削除
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+
+		return false;
+
+	});
 
 	Rotate();
 
