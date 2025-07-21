@@ -6,7 +6,7 @@
 #include <cassert>
 #include "Easing.h"
 #include "Operator.h"
-
+#include "PlayerBullet.h"
 // 02_14の29ページから再開
 
 /// <summary>
@@ -34,9 +34,19 @@ public:
 	/// </summary>
 	void Draw(KamataEngine::Camera& viewProjection);
 
-	
+	/// <summary>
+	/// 回転
+	/// </summary>
+	void Rotate();
+
+	/// <summary>
+	/// 攻撃
+	/// </summary>
+	void Attack();
 
 private:
+
+	PlayerBullet* bullet_ = nullptr;
 
 	KamataEngine::Input* input_ = nullptr;
 	

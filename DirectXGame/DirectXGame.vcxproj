@@ -117,6 +117,7 @@
     <ClCompile Include="MapChipField.cpp" />
     <ClCompile Include="Matrix4x4_.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="Title.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="Matrix4x4_.h" />
     <ClInclude Include="Operator.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="Title.h" />
