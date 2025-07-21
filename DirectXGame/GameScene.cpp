@@ -22,7 +22,7 @@ void GameScene::Initialize() {
 	enemyTextureHandle_ = TextureManager::Load("uvChecker.png");
 	enemy_ = new Enemy();
 
-	Vector3 position = {0.0f, 0.0f, -20};
+	Vector3 position = {0.0f, 0.0f, 100.0f};
 
 	enemy_->Initialize(enemyModel_, position, enemyTextureHandle_);
 
