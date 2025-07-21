@@ -209,6 +209,7 @@
     <ClInclude Include="HitEffect.h" />
     <ClInclude Include="MapChipFiled.h" />
     <ClInclude Include="Matrix4x4_.h" />
+    <ClInclude Include="Operator.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Skydome.h" />

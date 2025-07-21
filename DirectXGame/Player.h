@@ -5,6 +5,7 @@
 #include "WorldTransformClass.h"
 #include <cassert>
 #include "Easing.h"
+#include "Operator.h"
 
 // 02_14の29ページから再開
 
@@ -36,6 +37,8 @@ public:
 	
 
 private:
+
+	KamataEngine::Input* input_ = nullptr;
 	
 	KamataEngine::WorldTransform worldTransform_; // ワールド変形
 	KamataEngine::Model* model_ = nullptr;        // モデル

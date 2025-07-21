@@ -18,22 +18,58 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	player_->Initialize(playerModel, playerTextureHandle_);
 
-	
+	debugCamera_ = new DebugCamera(1280, 720);
+	input_ = Input::GetInstance();
+	//軸方向の表示を有効にする
+	AxisIndicator::GetInstance()->SetVisible(true);
+	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
+	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
 }
 
 GameScene::~GameScene() {
 	
 	delete player_;
 	delete playerModel;
-
+	delete debugCamera_;
 }
 
 void GameScene::Update() {
+	
+	
 
 	  viewProjection_.UpdateMatrix(); // ←これが必要！
 
-	player_->Updata(); 
 
+
+#ifdef _DEBUG
+
+	
+
+
+if (input_->TriggerKey(DIK_SPACE)) {
+		  isDebugCameraActive_ = !isDebugCameraActive_;
+	  }
+
+
+	#endif
+	
+
+	if (isDebugCameraActive_) {
+	
+		debugCamera_->Update();
+
+		viewProjection_.matView =debugCamera_->GetCamera().matView;
+		viewProjection_.matProjection = debugCamera_->GetCamera().matProjection;
+		viewProjection_.TransferMatrix();
+	} else {
+		//ビュープロジェクション行列の更新と転送
+		viewProjection_.UpdateMatrix();
+	}
+
+		player_->Updata(); 
+	ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
+	    ImGui::Text("Space Trigger: %s", input_->TriggerKey(DIK_SPACE) ? "Triggered" : "Not triggered");
+	    ImGui::Text("DebugCamera Active: %s", isDebugCameraActive_ ? "True" : "False");
 }
 
 void GameScene::Draw() { 
