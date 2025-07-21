@@ -14,6 +14,12 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 
 }
 
+Player::~Player() {
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+	}
+}
+
 void Player::Rotate() {
 	//回転速さ
 	const float kRotSpeed = 0.02f;
@@ -33,12 +39,14 @@ void Player::Rotate() {
 void Player::Attack() { 
 	if (input_->TriggerKey(DIK_SPACE)) {
 
+		
+
 		//球を生成し初期化
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		//球を登録
-		bullet_ = newBullet;
+		bullets_.push_back(newBullet);
 
 	}
 
@@ -75,9 +83,8 @@ WorldTrnasformUpdate(worldTransform_);
 	Attack();
 
 	//弾更新
-	if (bullet_) {
-	
-	bullet_->Updata();
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Updata();
 	
 	}
 
@@ -100,8 +107,9 @@ WorldTrnasformUpdate(worldTransform_);
 void Player::Draw(Camera& viewProjection) {
 	model_->Draw(worldTransform_,viewProjection ,textureHandle_);
 
-	if (bullet_) {
-		bullet_->Draw(viewProjection);
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw(viewProjection);
+	
 	}
 
 }
