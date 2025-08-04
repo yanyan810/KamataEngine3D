@@ -123,6 +123,7 @@
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="TimedeCall.cpp" />
     <ClCompile Include="Title.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="WorldTransformClass.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Skydome.h" />
+    <ClInclude Include="TimedeCall.h" />
     <ClInclude Include="Title.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="WorldTransformClass.h" />
