@@ -6,6 +6,7 @@
 #include "Operator.h"
 #include "EnemyState.h"
 #include "EnemyBullet.h"
+#include "TimedeCall.h"
 
 class Enemy {
 public:
@@ -30,6 +31,10 @@ public:
 	void DecrementFireTimer();       // タイマーを1減らす
 	bool IsFireTimerExpired() const; // 0以下になったか
 
+	/// <summary>
+	/// 球を発射しリセットする関数
+	/// </summary>
+	void FireReset();
 
 private:
 	KamataEngine::WorldTransform worldTransform_;
@@ -44,5 +49,7 @@ private:
 
 	//発射タイマー
 	int32_t fireTimer = 0;
+
+	std::list<TimedeCall> timedCalls_;
 
 };

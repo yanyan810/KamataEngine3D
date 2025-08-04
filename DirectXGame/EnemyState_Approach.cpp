@@ -11,25 +11,12 @@ void EnemyState_Approach::Enter(Enemy* enemy) {
 void EnemyState_Approach::Update(Enemy* enemy) {
 	const float kMoveSpeed = 0.5f;
 	KamataEngine::Vector3 velocity = {0, 0, -kMoveSpeed};
-
 	enemy->Move(velocity);
 
-	// 🔽 タイマーをカウントダウン
-	enemy->DecrementFireTimer();
-
-	// 🔫 タイマーが0以下になったら発射
-	if (enemy->IsFireTimerExpired()) {
-		enemy->Fire();
-
-		enemy->ApproachInitialize(); // ← タイマーをリセット
-
-	}
+	// ※ここでの FireTimer の手動カウント・Fire 呼び出しは不要
 
 	// 状態遷移チェック
 	if (enemy->GetPosition().z < 0.0f) {
 		enemy->SetState(new EnemyState_Leave());
 	}
-
-
-
 }

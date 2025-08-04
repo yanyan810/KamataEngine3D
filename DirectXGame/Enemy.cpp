@@ -29,6 +29,11 @@ Enemy::~Enemy() {
 	for (EnemyBullet* bullet_ : bullets_) {
 		delete bullet_;
 	}
+
+	for (TimedeCall& timedCall : timedCalls_) {
+		timedCall.~TimedeCall(); // 明示的にデストラクタを呼び出す
+	}
+
 }
 
 void Enemy::DecrementFireTimer() {
@@ -50,7 +55,27 @@ void Enemy::Fire() {
 	
 }
 
-void Enemy::ApproachInitialize() { fireTimer = kFIreInterval; }
+void Enemy::ApproachInitialize() {
+	fireTimer = kFIreInterval;
+
+	// 最初の発射を予約
+	std::function<void(void)> callback = std::bind(&Enemy::FireReset, this);
+	timedCalls_.emplace_back(callback, kFIreInterval);
+}
+
+
+void Enemy::FireReset() {
+	Fire(); 
+	// 発射タイマーをリセット
+	std::function<void(void)> callback = std::bind(&Enemy::FireReset, this);
+
+	//時限発動イベントを生成
+	TimedeCall* timedCall = new TimedeCall(callback, kFIreInterval);
+
+	//時限発動イベントを時限発動イベントリストに追加
+	timedCalls_.push_back(*timedCall);
+
+}
 
 void Enemy::Update() {
 
@@ -72,17 +97,28 @@ void Enemy::Update() {
 		bullet_->Update(); // 弾の更新処理をここに入れる
 	}
 
+
+
+	timedCalls_.remove_if([](TimedeCall& timedCall) {
+		timedCall.Update();
+		return timedCall.IsFinished();
+	});
+
 	ImGui::Text("Fire Timer: %d", fireTimer);
 
 }
 
 void Enemy::SetState(EnemyState* newState) {
+	// フェーズ変更時に発射予約を中断
+	timedCalls_.clear(); // これで発射予約をすべて破棄
+
 	if (state_) {
 		delete state_;
 	}
 	state_ = newState;
-	state_->Enter(this); // 状態切替時に初期化処理を呼ぶ
+	state_->Enter(this);
 }
+
 
 void Enemy::Move(const Vector3& velocity) {
 	worldTransform_.translation_ += velocity;
