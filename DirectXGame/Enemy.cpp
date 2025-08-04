@@ -11,15 +11,6 @@
 
 using namespace KamataEngine;
 
-inline Vector3 Normalize(const Vector3& v) {
-	float length = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-	if (length == 0.0f) {
-		return {0.0f, 0.0f, 0.0f}; // ゼロベクトルのときはそのまま返す
-	}
-	return {v.x / length, v.y / length, v.z / length};
-}
-
-
 void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHandle) {
 	assert(model);
 	model_ = model;
@@ -80,11 +71,10 @@ void Enemy::Fire() {
 	vector *= kBulletSpeed;
 
 
-		EnemyBullet* newBullet = new EnemyBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_,vector);
+	EnemyBullet* newBullet = new EnemyBullet();
+	newBullet->Initialize(model_, worldTransform_.translation_, vector, player_);
+	bullets_.push_back(newBullet);
 
-		// 球を登録する
-		bullets_.push_back(newBullet);
 	
 }
 
