@@ -23,4 +23,3 @@ void WorldTrnasformUpdate(KamataEngine::WorldTransform& worldTransform) {
 	// 定数バッファへの書き込み
 	worldTransform.TransferMatrix();
 }
-

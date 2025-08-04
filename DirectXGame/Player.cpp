@@ -36,6 +36,16 @@ void Player::Rotate() {
 
 }
 
+Vector3 Player::GetPosition() { 
+
+	Vector3 worldPos;
+
+	worldPos = worldTransform_.translation_;
+
+	return worldPos;
+
+}
+
 void Player::Attack() { 
 	if (input_->TriggerKey(DIK_SPACE)) {
 

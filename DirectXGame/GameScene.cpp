@@ -10,6 +10,7 @@ using namespace KamataEngine;
 void GameScene::Initialize() {
 	// 初期化処理
 	
+
 	viewProjection_.Initialize();
 	worldTransform_.Initialize();
 
@@ -25,6 +26,9 @@ void GameScene::Initialize() {
 	Vector3 position = {20.0f, 0.0f, 150.0f};
 
 	enemy_->Initialize(enemyModel_, position, enemyTextureHandle_);
+
+		enemy_->SetPlayer(player_); // プレイヤーを敵に設定
+
 
 	debugCamera_ = new DebugCamera(1280, 720);
 	input_ = Input::GetInstance();

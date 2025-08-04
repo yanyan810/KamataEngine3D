@@ -12,7 +12,8 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
+
 
 	/// <summary>
 	/// 更新
@@ -35,6 +36,8 @@ public:
 	static const int32_t kLifeTime = 60 * 3;
 	int32_t deathTimer_ = kLifeTime;
 	bool isDead_ = false;
+
+	KamataEngine::Vector3 velocity_{}; // 追加：方向と速さを持つベクトル
 
 
 
