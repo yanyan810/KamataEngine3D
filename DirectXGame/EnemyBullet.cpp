@@ -2,36 +2,22 @@
 
 using namespace KamataEngine;
 
-void EnemyBullet::Initialize(Model* model,const Vector3& position) {
-
-	assert(model);
+void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity) {
 	model_ = model;
-	textureHandle_ = TextureManager::Load("debugfont.png");
-
+	textureHandle_ = TextureManager::Load("black.png");
 	worldTransform_.Initialize();
-	//引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
-
-	WorldTrnasformUpdate(worldTransform_);
 
 }
 
 void EnemyBullet::Update() {
+	worldTransform_.translation_ += velocity_;
 
-	const float kBulletSpeed = 1.0f;
-
-	Vector3 velocity = {0.0f, 0.0f, -kBulletSpeed};
-
-	worldTransform_.translation_ += velocity;
-
-	if (--deathTimer_ <=0) {
-	
+	if (--deathTimer_ <= 0) {
 		isDead_ = true;
-
 	}
 
 	WorldTrnasformUpdate(worldTransform_);
-
 }
 
 void EnemyBullet::Draw(const Camera& camera) {

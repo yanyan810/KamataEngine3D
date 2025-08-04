@@ -7,8 +7,18 @@
 #define _USE_MATH_DEFINES
 #include "EnemyState_Approach.h" // ← これを追加
 #include <numbers>
+#include "Player.h"
 
 using namespace KamataEngine;
+
+inline Vector3 Normalize(const Vector3& v) {
+	float length = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	if (length == 0.0f) {
+		return {0.0f, 0.0f, 0.0f}; // ゼロベクトルのときはそのまま返す
+	}
+	return {v.x / length, v.y / length, v.z / length};
+}
+
 
 void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHandle) {
 	assert(model);
@@ -22,6 +32,7 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	SetState(new EnemyState_Approach());
 
 	ApproachInitialize();
+
 }
 
 Enemy::~Enemy() {
@@ -36,6 +47,12 @@ Enemy::~Enemy() {
 
 }
 
+Vector3 Enemy::GetWorldPosition() {
+	Vector3 worldPos;
+	worldPos = worldTransform_.translation_;
+	return worldPos;
+}
+
 void Enemy::DecrementFireTimer() {
 	if (fireTimer > 0) {
 		fireTimer--;
@@ -46,9 +63,25 @@ bool Enemy::IsFireTimerExpired() const { return fireTimer <= 0; }
 
 void Enemy::Fire() {
 
-	
+	assert(player_); // プレイヤーが設定されていることを確認
+
+	//球の速さ
+	const float kBulletSpeed = 1.0f;
+
+	//自キャラのワールド座標を取得する
+	Vector3 playerPosition = player_->GetPosition();
+	//敵キャラのワールド座標を取得する
+	Vector3 enemyPosition = GetWorldPosition();
+	//敵から自キャラの差分のベクトルを求める
+	Vector3 vector = playerPosition - enemyPosition;
+	//ベクトルの正規化
+	vector = Normalize(vector);
+	//ベクトルの長さを早さに合わせる
+	vector *= kBulletSpeed;
+
+
 		EnemyBullet* newBullet = new EnemyBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_,vector);
 
 		// 球を登録する
 		bullets_.push_back(newBullet);

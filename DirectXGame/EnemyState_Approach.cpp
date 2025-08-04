@@ -9,7 +9,7 @@ void EnemyState_Approach::Enter(Enemy* enemy) {
 
 
 void EnemyState_Approach::Update(Enemy* enemy) {
-	const float kMoveSpeed = 0.5f;
+	const float kMoveSpeed = 0.1f;
 	KamataEngine::Vector3 velocity = {0, 0, -kMoveSpeed};
 	enemy->Move(velocity);
 

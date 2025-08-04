@@ -7,6 +7,9 @@
 #include "EnemyState.h"
 #include "EnemyBullet.h"
 #include "TimedeCall.h"
+//#include "Player.h"
+
+class Player;
 
 class Enemy {
 public:
@@ -36,6 +39,10 @@ public:
 	/// </summary>
 	void FireReset();
 
+	void SetPlayer(Player* player) { player_ = player; }
+
+	KamataEngine::Vector3 GetWorldPosition();
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::Model* model_ = nullptr;
@@ -51,5 +58,8 @@ private:
 	int32_t fireTimer = 0;
 
 	std::list<TimedeCall> timedCalls_;
+
+	Player* player_ = nullptr;
+
 
 };

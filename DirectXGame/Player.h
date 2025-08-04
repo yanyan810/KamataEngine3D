@@ -49,6 +49,8 @@ public:
 	/// </summary>
 	void Attack();
 
+	KamataEngine::Vector3 GetPosition();
+
 private:
 
 		// 弾
