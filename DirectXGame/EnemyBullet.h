@@ -2,7 +2,9 @@
 #include "KamataEngine.h"
 #include "WorldTransformClass.h"
 #include "Operator.h"
+#include "Easing.h"
 
+class Player;
 
 class EnemyBullet {
 public: 
@@ -12,8 +14,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
-
+	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity, Player* player);
 
 	/// <summary>
 	/// 更新
@@ -27,6 +28,8 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
+	void SetPlayer(Player* player) { player_ = player; }
+
 	private:
 
 	KamataEngine::WorldTransform worldTransform_;
@@ -39,7 +42,7 @@ public:
 
 	KamataEngine::Vector3 velocity_{}; // 追加：方向と速さを持つベクトル
 
-
+	Player* player_ = nullptr; // 追加：プレイヤーへの参照
 
 };
 
