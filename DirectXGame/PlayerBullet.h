@@ -26,6 +26,17 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
+	// 衝突を検知したら曜日出されるコールバック関数
+	void OnCollision();
+
+	KamataEngine::Vector3 GetPositon() {
+		KamataEngine::Vector3 worldPos;
+		worldPos = worldTransform_.translation_;
+		return worldPos;
+	}
+
+	float GetRadius() const { return 0.5f; }  
+
 private:
 
 	KamataEngine::WorldTransform worldTransform_;

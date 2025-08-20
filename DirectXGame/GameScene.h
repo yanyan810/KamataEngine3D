@@ -20,7 +20,10 @@ public:
 	// 描画
 	void Draw();
 
-	
+	/// <summary>
+	/// 衝突判定と応答
+	/// </summary>
+	void ChackAllCollisions();
 
 private:
 	Player* player_ = nullptr;                  // プレイヤーのインスタンス

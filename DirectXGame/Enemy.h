@@ -43,6 +43,13 @@ public:
 
 	KamataEngine::Vector3 GetWorldPosition();
 
+	//衝突を検知したら曜日出されるコールバック関数
+	void OnCollision();
+
+	// 弾リストを取得
+	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+	float GetRadius() const { return 1.0f; } // 敵の半径（仮値）
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::Model* model_ = nullptr;
@@ -61,5 +68,5 @@ private:
 
 	Player* player_ = nullptr;
 
-
+	
 };
