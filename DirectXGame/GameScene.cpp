@@ -101,19 +101,21 @@ void GameScene::ChackAllCollisions() {
 	#pragma endregion
 
 
-	#pragma region 自弾と敵弾の衝突判定
+#pragma region 自弾と敵弾の衝突判定
 
-	//これがまだできていない
-
-for (PlayerBullet* playerBullet : playerBullets) {
-		Vector3 playerPos = playerBullet->GetPositon(); // ← posA → playerPos に変更
+	for (PlayerBullet* playerBullet : playerBullets) {
+		if (!playerBullet)
+			continue;
+		Vector3 playerPos = playerBullet->GetPositon();
 		float radiusA = playerBullet->GetRadius();
 
 		for (EnemyBullet* enemyBullet : enemyBullets) {
-			Vector3 enemyPosition = enemyBullet->GetPosition();
+			if (!enemyBullet)
+				continue;
+			Vector3 enemyPosB = enemyBullet->GetPosition(); // ← 敵弾の位置
 			float radiusB = enemyBullet->GetRadius();
 
-			Vector3 diff = playerPos - enemyPos;
+			Vector3 diff = playerPos - enemyPosB; // ← 修正ポイント
 			float distanceSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 			float collisionDist = radiusA + radiusB;
 
@@ -124,9 +126,7 @@ for (PlayerBullet* playerBullet : playerBullets) {
 		}
 	}
 
-
-	#pragma endregion
-
+#pragma endregion
 }
 
 void GameScene::Update() {
