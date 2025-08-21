@@ -2,7 +2,7 @@
 #include "KamataEngine.h"
 #include "Player.h"
 #include "Enemy.h"
-
+#include "CollisionManager.h"
 // ゲームシーン
 class GameScene {
 
@@ -25,7 +25,7 @@ public:
 	/// </summary>
 	void CheckAllCollisions();
 
-	 void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
+	// void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 
 private:
 	Player* player_ = nullptr;                  // プレイヤーのインスタンス
@@ -45,5 +45,7 @@ private:
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	KamataEngine::Input* input_ = nullptr;
+
+	  CollisionManager* collisionManager_ = nullptr;
 
 };
