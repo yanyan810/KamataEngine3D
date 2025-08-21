@@ -46,12 +46,12 @@ Vector3 Player::GetPosition() {
 
 }
 
-// 何もしない
-void Player::OnCollision() {
-
-
-
-}
+//// 何もしない
+//void Player::OnCollision() {
+//
+//
+//
+//}
 
 void Player::Attack() { 
 	if (input_->TriggerKey(DIK_SPACE)) {

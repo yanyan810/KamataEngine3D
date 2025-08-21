@@ -3,10 +3,11 @@
 #include "WorldTransformClass.h"
 #include "Operator.h"
 #include "Easing.h"
+#include "Collider.h"
 
 class Player;
 
-class EnemyBullet {
+class EnemyBullet:public Collider {
 public: 
 
 	/// <summary>
@@ -32,6 +33,9 @@ public:
 
 		// 衝突を検知したら曜日出されるコールバック関数
 	void OnCollision();
+
+	KamataEngine::Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
+
 
 	KamataEngine::Vector3 GetPosition();
 

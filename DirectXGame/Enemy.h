@@ -7,11 +7,12 @@
 #include "EnemyState.h"
 #include "EnemyBullet.h"
 #include "TimedeCall.h"
+#include "Collider.h"
 //#include "Player.h"
 
 class Player;
 
-class Enemy {
+class Enemy: public Collider {
 public:
 
 	~Enemy();
@@ -49,6 +50,9 @@ public:
 	// 弾リストを取得
 	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
 	float GetRadius() const { return 1.0f; } // 敵の半径（仮値）
+
+	KamataEngine::Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
+
 
 private:
 	KamataEngine::WorldTransform worldTransform_;
