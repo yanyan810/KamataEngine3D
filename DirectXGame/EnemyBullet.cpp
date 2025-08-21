@@ -21,7 +21,18 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 	WorldTrnasformUpdate(worldTransform_);
 }
 
+void EnemyBullet::OnCollision() {
 
+	isDead_ = true; // 衝突したらデスフラグを立てる
+}
+
+KamataEngine::Vector3 EnemyBullet::GetPosition() {
+
+	Vector3 worldPos;
+
+	worldPos=worldTransform_.translation_;
+	return worldPos;
+}
 
 void EnemyBullet::Update() {
 	worldTransform_.translation_ += velocity_;
@@ -36,7 +47,7 @@ void EnemyBullet::Update() {
 	toPlayer = Normalize(toPlayer);
 	velocity_ = Normalize(velocity_);
 	//球面政権補間
-	velocity_ = Slerp(velocity_, toPlayer, 0.05f); // 進行方向をプレイヤーに向ける
+	velocity_ = Slerp(velocity_, toPlayer, 0.03f); // 進行方向をプレイヤーに向ける
 
 	// 進行方向のY回転（XZ平面に投影して考える）
 	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);

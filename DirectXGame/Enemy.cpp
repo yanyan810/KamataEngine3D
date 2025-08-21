@@ -100,6 +100,13 @@ void Enemy::FireReset() {
 
 }
 
+//何もしない
+
+void Enemy::OnCollision() {
+
+	
+}
+
 void Enemy::Update() {
 
 	// 　ですフラグの立った球を削除

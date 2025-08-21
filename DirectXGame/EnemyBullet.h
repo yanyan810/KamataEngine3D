@@ -30,6 +30,14 @@ public:
 
 	void SetPlayer(Player* player) { player_ = player; }
 
+		// 衝突を検知したら曜日出されるコールバック関数
+	void OnCollision();
+
+	KamataEngine::Vector3 GetPosition();
+
+	
+	float GetRadius() const { return 0.5f; } // 弾の半径（仮値）
+
 	private:
 
 	KamataEngine::WorldTransform worldTransform_;
@@ -45,5 +53,4 @@ public:
 	Player* player_ = nullptr; // 追加：プレイヤーへの参照
 
 };
-
 

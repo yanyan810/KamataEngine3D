@@ -51,6 +51,14 @@ public:
 
 	KamataEngine::Vector3 GetPosition();
 
+	// 衝突を検知したら曜日出されるコールバック関数
+	void OnCollision();
+
+		// 弾リストを取得
+	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+
+	float GetRadius() const { return 1.0f; } // 自キャラの半径（仮値）
+
 private:
 
 		// 弾
@@ -61,7 +69,6 @@ private:
 	KamataEngine::WorldTransform worldTransform_; // ワールド変形
 	KamataEngine::Model* model_ = nullptr;        // モデル
 	uint32_t textureHandle_ = 0;                  // テクスチャハンドル
-
 
 
 };

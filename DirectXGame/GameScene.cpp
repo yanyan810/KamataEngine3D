@@ -45,6 +45,90 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 }
 
+void GameScene::ChackAllCollisions() {
+
+	Vector3 posA, posB;
+
+	//自弾リストの取得
+	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	//敵弾リストの取得
+	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+
+	#pragma region 自キャラと敵弾の衝突判定
+
+	posA = player_->GetPosition();
+	float playerRadius = player_->GetRadius();
+
+	for (EnemyBullet* bullet : enemyBullets) {
+		posB = bullet->GetPosition();
+		float bulletRadius = bullet->GetRadius();
+
+		// 距離計算
+		Vector3 diff = posA - posB;
+		float distanceSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+		float collisionDist = playerRadius + bulletRadius;
+
+		if (distanceSq <= collisionDist * collisionDist) {
+			player_->OnCollision();
+			bullet->OnCollision();
+		}
+	}
+
+
+	#pragma endregion
+
+
+	#pragma region 自弾と敵キャラの衝突判定
+
+	
+	Vector3 enemyPos = enemy_->GetPosition();
+	float enemyRadius = enemy_->GetRadius();
+
+	for (PlayerBullet* bullet : playerBullets) {
+		Vector3 bulletPos = bullet->GetPositon();
+		float bulletRadius = bullet->GetRadius();
+
+		Vector3 diff = bulletPos - enemyPos;
+		float distanceSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+		float collisionDist = bulletRadius + enemyRadius;
+
+		if (distanceSq <= collisionDist * collisionDist) {
+			bullet->OnCollision();
+			enemy_->OnCollision();
+		}
+	}
+
+	#pragma endregion
+
+
+#pragma region 自弾と敵弾の衝突判定
+
+	for (PlayerBullet* playerBullet : playerBullets) {
+		if (!playerBullet)
+			continue;
+		Vector3 playerPos = playerBullet->GetPositon();
+		float radiusA = playerBullet->GetRadius();
+
+		for (EnemyBullet* enemyBullet : enemyBullets) {
+			if (!enemyBullet)
+				continue;
+			Vector3 enemyPosB = enemyBullet->GetPosition(); // ← 敵弾の位置
+			float radiusB = enemyBullet->GetRadius();
+
+			Vector3 diff = playerPos - enemyPosB; // ← 修正ポイント
+			float distanceSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+			float collisionDist = radiusA + radiusB;
+
+			if (distanceSq <= collisionDist * collisionDist) {
+				playerBullet->OnCollision();
+				enemyBullet->OnCollision();
+			}
+		}
+	}
+
+#pragma endregion
+}
+
 void GameScene::Update() {
 	
 	
@@ -84,6 +168,8 @@ if (input_->TriggerKey(DIK_TAB)) {
 
 		    enemy_->Update();
 	    }
+
+		ChackAllCollisions();
 
 	ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
 	    ImGui::Text("Space Trigger: %s", input_->TriggerKey(DIK_SPACE) ? "Triggered" : "Not triggered");

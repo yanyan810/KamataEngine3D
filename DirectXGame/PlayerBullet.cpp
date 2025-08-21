@@ -17,6 +17,13 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position,const Vector
 
 }
 
+
+void PlayerBullet::OnCollision() {
+
+isDead_ = true; // 衝突したらデスフラグを立てる
+
+}
+
 void PlayerBullet::Updata() {
 
 	if (--deathTimer_ <= 0) {
