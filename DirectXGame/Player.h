@@ -76,5 +76,6 @@ private:
 	KamataEngine::Model* model_ = nullptr;        // モデル
 	uint32_t textureHandle_ = 0;                  // テクスチャハンドル
 
+	KamataEngine::Model* playerBulletModel = nullptr; // プレイヤーのモデル
 
 };

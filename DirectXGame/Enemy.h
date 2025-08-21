@@ -72,5 +72,5 @@ private:
 
 	Player* player_ = nullptr;
 
-	
+	KamataEngine::Model* bulletModel_ = nullptr; // 弾のモデル
 };
