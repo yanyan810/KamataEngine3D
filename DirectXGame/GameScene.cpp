@@ -36,72 +36,74 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
+
+	collisionManager_ = new CollisionManager();
+
+
 }
-void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
-	// 衝突フィルタリング
-	if ((colliderA->GetCollisionMask() & colliderB->GetCollisionAttribute()) == 0 || (colliderB->GetCollisionMask() & colliderA->GetCollisionAttribute()) == 0) {
-		return; // どちらかが当たらない設定になっている場合、スキップ
-	}
-
-	// 実際の当たり判定
-	Vector3 posA = colliderA->GetWorldPosition();
-	Vector3 posB = colliderB->GetWorldPosition();
-
-	float dx = posA.x - posB.x;
-	float dy = posA.y - posB.y;
-	float dz = posA.z - posB.z;
-
-	float distSq = dx * dx + dy * dy + dz * dz;
-	float radiusSum = colliderA->GetRadius() + colliderB->GetRadius();
-
-	if (distSq <= radiusSum * radiusSum) {
-		colliderA->OnCollision();
-		colliderB->OnCollision();
-	}
-}
-
+//void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
+//	// 衝突フィルタリング
+//	if ((colliderA->GetCollisionMask() & colliderB->GetCollisionAttribute()) == 0 || (colliderB->GetCollisionMask() & colliderA->GetCollisionAttribute()) == 0) {
+//		return; // どちらかが当たらない設定になっている場合、スキップ
+//	}
+//
+//	// 実際の当たり判定
+//	Vector3 posA = colliderA->GetWorldPosition();
+//	Vector3 posB = colliderB->GetWorldPosition();
+//
+//	float dx = posA.x - posB.x;
+//	float dy = posA.y - posB.y;
+//	float dz = posA.z - posB.z;
+//
+//	float distSq = dx * dx + dy * dy + dz * dz;
+//	float radiusSum = colliderA->GetRadius() + colliderB->GetRadius();
+//
+//	if (distSq <= radiusSum * radiusSum) {
+//		colliderA->OnCollision();
+//		colliderB->OnCollision();
+//	}
+//}
+//
 
 GameScene::~GameScene() {
 	
 	delete player_;
 	delete playerModel;
 	delete debugCamera_;
+	delete collisionManager_;
+	collisionManager_ = nullptr;
+
 }
 
 
-// 関数の定義を追加（cpp内）
 void GameScene::CheckAllCollisions() {
-	std::list<Collider*> colliders;
+	// コリジョンマネージャのリストを一度クリア
+	collisionManager_->Clear();
 
-	// プレイヤーと敵
+	// プレイヤーと自弾
 	if (player_) {
-		colliders.push_back(player_);
-	}
-	if (enemy_) {
-		colliders.push_back(enemy_);
-		for (EnemyBullet* bullet : enemy_->GetBullets()) {
-			if (bullet)
-				colliders.push_back(bullet);
-		}
-	}
-
-
-	if (player_) {
+		collisionManager_->AddCollider(player_);
 		for (PlayerBullet* bullet : player_->GetBullets()) {
 			if (bullet) {
-				colliders.push_back(bullet);
+				collisionManager_->AddCollider(bullet);
 			}
 		}
 	}
-	// 総当たりチェック
-	for (auto itrA = colliders.begin(); itrA != colliders.end(); ++itrA) {
-		auto itrB = itrA;
-		++itrB;
-		for (; itrB != colliders.end(); ++itrB) {
-			CheckCollisionPair(*itrA, *itrB);
+
+	// 敵と敵弾
+	if (enemy_) {
+		collisionManager_->AddCollider(enemy_);
+		for (EnemyBullet* bullet : enemy_->GetBullets()) {
+			if (bullet) {
+				collisionManager_->AddCollider(bullet);
+			}
 		}
 	}
+
+	// 総当たりチェックはマネージャに任せる
+	collisionManager_->CheckAllCollisions();
 }
+
 
 
 void GameScene::Update() {
@@ -142,6 +144,24 @@ if (input_->TriggerKey(DIK_TAB)) {
 		if (enemy_) {
 
 		    enemy_->Update();
+	    }
+
+		collisionManager_->Clear(); // 登録を毎フレームリセット
+
+	    // 登録
+	    if (player_) {
+		    collisionManager_->AddCollider(player_);
+		    for (auto* bullet : player_->GetBullets()) {
+			    if (bullet)
+				    collisionManager_->AddCollider(bullet);
+		    }
+	    }
+	    if (enemy_) {
+		    collisionManager_->AddCollider(enemy_);
+		    for (auto* bullet : enemy_->GetBullets()) {
+			    if (bullet)
+				    collisionManager_->AddCollider(bullet);
+		    }
 	    }
 
 		CheckAllCollisions();
