@@ -3,6 +3,7 @@
 #include "WorldTransformClass.h"
 #include "Operator.h"
 #include "Collider.h"
+#include "CollisionConfig.h"
 
 class PlayerBullet:public Collider {
 public:

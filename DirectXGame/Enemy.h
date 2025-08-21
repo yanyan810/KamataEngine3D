@@ -9,7 +9,7 @@
 #include "TimedeCall.h"
 #include "Collider.h"
 //#include "Player.h"
-
+#include "CollisionConfig.h"
 class Player;
 
 class Enemy: public Collider {

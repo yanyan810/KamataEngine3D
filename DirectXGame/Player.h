@@ -8,8 +8,7 @@
 #include "Operator.h"
 #include "PlayerBullet.h"
 #include "Collider.h"
-// 02_14の29ページから再開
-
+#include "CollisionConfig.h"
 /// <summary>
 /// 自キャラ
 /// </summary>

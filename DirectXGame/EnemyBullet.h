@@ -4,7 +4,7 @@
 #include "Operator.h"
 #include "Easing.h"
 #include "Collider.h"
-
+#include "CollisionConfig.h"
 class Player;
 
 class EnemyBullet:public Collider {

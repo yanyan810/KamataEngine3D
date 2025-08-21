@@ -15,7 +15,14 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position,const Vector
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 
+	SetCollisionAttribute(kCollisionAttributePlayerBullet);
+
+	// 自分は「敵と敵弾」に当たりたい場合（例）
+	SetCollisionMask(kCollisionAttributeEnemy | kCollisionAttributeEnemyBullet);
+
 }
+
+
 
 
 void PlayerBullet::OnCollision() {
