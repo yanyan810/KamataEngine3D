@@ -2,10 +2,13 @@
 
 using namespace KamataEngine;
 
-void PlayerBullet::Initialize(Model* model, const Vector3& position,const Vector3& velosity) { 
-	assert(model);
+Model* PlayerBullet::model_ = nullptr;
 
-	model_ = model;
+void PlayerBullet::LoadModel() {
+	model_ = Model::CreateFromOBJ("player"); // ← あなたの弾モデル名に合わせて変更
+}
+
+void PlayerBullet::Initialize(const Vector3& position,const Vector3& velosity) { 
 	//テクスチャ読み込み
 	textureHandle_ = TextureManager::Load("black.png");
 	//引数で受け取った速度をメンバ変数に代入

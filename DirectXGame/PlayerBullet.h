@@ -13,7 +13,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position,const KamataEngine::Vector3& velocity);
+	void Initialize( const KamataEngine::Vector3& position,const KamataEngine::Vector3& velocity);
 
 	/// <summary>
 	/// 更新
@@ -43,10 +43,12 @@ public:
 
 	float GetRadius() const { return 0.5f; }  
 
+		static void LoadModel();
+
 private:
 
 	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::Model* model_ = nullptr;
+	static KamataEngine::Model* model_;
 	uint32_t textureHandle_ = 0;
 	KamataEngine::Vector3 velosity_;
 	static const int32_t kLifeTime = 60 * 5;

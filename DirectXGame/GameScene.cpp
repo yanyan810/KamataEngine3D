@@ -14,12 +14,12 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 	worldTransform_.Initialize();
 
-	playerModel = Model::Create();
+	playerModel = Model::CreateFromOBJ("player",true);
 	playerTextureHandle_ = TextureManager::Load("sample.png");
 	player_ = new Player();
 	player_->Initialize(playerModel, playerTextureHandle_);
 
-	enemyModel_ = Model::Create();
+	enemyModel_ = Model::CreateFromOBJ("enemy",true);
 	enemyTextureHandle_ = TextureManager::Load("uvChecker.png");
 	enemy_ = new Enemy();
 
@@ -45,6 +45,8 @@ void GameScene::Initialize() {
 	viewProjection_.farZ = 10000.0f; // ← 天球がしっかり入るように大きくする
 	viewProjection_.UpdateMatrix();  // farZを変えたら必ず再計算
 
+	EnemyBullet::LoadModel();
+	PlayerBullet::LoadModel(); 
 
 
 }

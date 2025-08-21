@@ -4,8 +4,11 @@ using namespace KamataEngine;
 
 #include <cmath> // std::atan2 用
 
-void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity, Player* player) {
-	model_ = model;
+Model* EnemyBullet::model_ = nullptr;
+
+void EnemyBullet::LoadModel() { model_ = Model::CreateFromOBJ("enemy"); }
+
+void EnemyBullet::Initialize( const Vector3& position, const Vector3& velocity, Player* player) {
 	textureHandle_ = TextureManager::Load("black.png");
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;

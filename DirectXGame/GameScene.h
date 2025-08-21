@@ -4,6 +4,7 @@
 #include "Enemy.h"
 #include "CollisionManager.h"
 #include "Skydome.h"
+#include "EnemyBullet.h"
 // ゲームシーン
 class GameScene {
 

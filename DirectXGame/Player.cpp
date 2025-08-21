@@ -68,7 +68,7 @@ void Player::Attack() {
 	
 		//球を生成し初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(worldTransform_.translation_,velocity);
 
 		//球を登録
 		bullets_.push_back(newBullet);
