@@ -25,6 +25,8 @@ public:
 	/// </summary>
 	void ChackAllCollisions();
 
+	 void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
+
 private:
 	Player* player_ = nullptr;                  // プレイヤーのインスタンス
 	KamataEngine::Model* playerModel = nullptr; // プレイヤーのモデル

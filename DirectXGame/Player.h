@@ -7,12 +7,13 @@
 #include "Easing.h"
 #include "Operator.h"
 #include "PlayerBullet.h"
+#include "Collider.h"
 // 02_14の29ページから再開
 
 /// <summary>
 /// 自キャラ
 /// </summary>
-class Player {
+class Player : public Collider {
 
 public:
 
@@ -52,12 +53,18 @@ public:
 	KamataEngine::Vector3 GetPosition();
 
 	// 衝突を検知したら曜日出されるコールバック関数
-	void OnCollision();
+	//void OnCollision();
 
 		// 弾リストを取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
 	float GetRadius() const { return 1.0f; } // 自キャラの半径（仮値）
+
+	 Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
+
+	void OnCollision() override {
+		// プレイヤーの衝突時処理
+	}
 
 private:
 
