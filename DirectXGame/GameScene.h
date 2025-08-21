@@ -23,7 +23,7 @@ public:
 	/// <summary>
 	/// 衝突判定と応答
 	/// </summary>
-	void ChackAllCollisions();
+	void CheckAllCollisions();
 
 	 void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 

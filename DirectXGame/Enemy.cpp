@@ -24,6 +24,10 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 
 	ApproachInitialize();
 
+	SetCollisionAttribute(kCollisionAttributeEnemy);
+
+	// 自分は「プレイヤーと自弾」に当たりたい場合
+	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayerBullet);
 }
 
 Enemy::~Enemy() {

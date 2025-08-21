@@ -19,6 +19,11 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 	worldTransform_.rotation_.x = std::atan2(-velocity_.y, horizontalLen);
 
 	WorldTrnasformUpdate(worldTransform_);
+
+	SetCollisionAttribute(kCollisionAttributeEnemyBullet);
+	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayerBullet);
+
+
 }
 
 void EnemyBullet::OnCollision() {

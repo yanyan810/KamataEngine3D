@@ -12,6 +12,9 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 	input_ = Input::GetInstance();
 
+	SetCollisionAttribute(kCollisionAttributePlayer);
+	SetCollisionMask(kCollisionAttributeEnemy | kCollisionAttributeEnemyBullet);
+
 }
 
 Player::~Player() {

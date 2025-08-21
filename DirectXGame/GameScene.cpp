@@ -37,19 +37,21 @@ void GameScene::Initialize() {
 	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
 }
-
 void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
+	// 衝突フィルタリング
+	if ((colliderA->GetCollisionMask() & colliderB->GetCollisionAttribute()) == 0 || (colliderB->GetCollisionMask() & colliderA->GetCollisionAttribute()) == 0) {
+		return; // どちらかが当たらない設定になっている場合、スキップ
+	}
+
+	// 実際の当たり判定
 	Vector3 posA = colliderA->GetWorldPosition();
 	Vector3 posB = colliderB->GetWorldPosition();
 
-	// 位置の差を計算
 	float dx = posA.x - posB.x;
 	float dy = posA.y - posB.y;
 	float dz = posA.z - posB.z;
 
-	// 距離の2乗
 	float distSq = dx * dx + dy * dy + dz * dz;
-
 	float radiusSum = colliderA->GetRadius() + colliderB->GetRadius();
 
 	if (distSq <= radiusSum * radiusSum) {
@@ -66,38 +68,39 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 }
 
-void GameScene::ChackAllCollisions() {
-	// 自弾リストと敵弾リストを取得
-	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 
-#pragma region 自キャラと敵弾の衝突判定
-	for (EnemyBullet* bullet : enemyBullets) {
-		if (!bullet)
-			continue;
-		CheckCollisionPair(player_, bullet);
+// 関数の定義を追加（cpp内）
+void GameScene::CheckAllCollisions() {
+	std::list<Collider*> colliders;
+
+	// プレイヤーと敵
+	if (player_) {
+		colliders.push_back(player_);
 	}
-#pragma endregion
-
-#pragma region 自弾と敵キャラの衝突判定
-	for (PlayerBullet* bullet : playerBullets) {
-		if (!bullet)
-			continue;
-		CheckCollisionPair(bullet, enemy_);
-	}
-#pragma endregion
-
-#pragma region 自弾と敵弾の衝突判定
-	for (PlayerBullet* playerBullet : playerBullets) {
-		if (!playerBullet)
-			continue;
-		for (EnemyBullet* enemyBullet : enemyBullets) {
-			if (!enemyBullet)
-				continue;
-			CheckCollisionPair(playerBullet, enemyBullet);
+	if (enemy_) {
+		colliders.push_back(enemy_);
+		for (EnemyBullet* bullet : enemy_->GetBullets()) {
+			if (bullet)
+				colliders.push_back(bullet);
 		}
 	}
-#pragma endregion
+
+
+	if (player_) {
+		for (PlayerBullet* bullet : player_->GetBullets()) {
+			if (bullet) {
+				colliders.push_back(bullet);
+			}
+		}
+	}
+	// 総当たりチェック
+	for (auto itrA = colliders.begin(); itrA != colliders.end(); ++itrA) {
+		auto itrB = itrA;
+		++itrB;
+		for (; itrB != colliders.end(); ++itrB) {
+			CheckCollisionPair(*itrA, *itrB);
+		}
+	}
 }
 
 
@@ -141,7 +144,7 @@ if (input_->TriggerKey(DIK_TAB)) {
 		    enemy_->Update();
 	    }
 
-		ChackAllCollisions();
+		CheckAllCollisions();
 
 	ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
 	    ImGui::Text("Space Trigger: %s", input_->TriggerKey(DIK_SPACE) ? "Triggered" : "Not triggered");
