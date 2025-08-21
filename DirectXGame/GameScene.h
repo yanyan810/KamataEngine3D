@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "CollisionManager.h"
+#include "Skydome.h"
 // ゲームシーン
 class GameScene {
 
@@ -47,5 +48,9 @@ private:
 	KamataEngine::Input* input_ = nullptr;
 
 	  CollisionManager* collisionManager_ = nullptr;
+
+	  KamataEngine::Model* modelSkydome_ = nullptr; // 天球のモデル
+
+	  Skydome* skydome_ = nullptr; // 天球
 
 };

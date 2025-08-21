@@ -29,6 +29,9 @@ void GameScene::Initialize() {
 
 		enemy_->SetPlayer(player_); // プレイヤーを敵に設定
 
+		skydome_ = new Skydome();
+	    modelSkydome_ = Model::CreateFromOBJ("skydome",true);
+	    skydome_->Initialize(modelSkydome_,&viewProjection_);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 	input_ = Input::GetInstance();
@@ -38,6 +41,10 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
 
 	collisionManager_ = new CollisionManager();
+
+	viewProjection_.farZ = 10000.0f; // ← 天球がしっかり入るように大きくする
+	viewProjection_.UpdateMatrix();  // farZを変えたら必ず再計算
+
 
 
 }
@@ -72,7 +79,8 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete collisionManager_;
 	collisionManager_ = nullptr;
-
+	delete skydome_;
+	delete modelSkydome_;
 }
 
 
@@ -166,6 +174,8 @@ if (input_->TriggerKey(DIK_TAB)) {
 
 		CheckAllCollisions();
 
+		skydome_->Update();
+
 	ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
 	    ImGui::Text("Space Trigger: %s", input_->TriggerKey(DIK_SPACE) ? "Triggered" : "Not triggered");
 	    ImGui::Text("DebugCamera Active: %s", isDebugCameraActive_ ? "True" : "False");
@@ -186,6 +196,9 @@ void GameScene::Draw() {
 
 		enemy_->Draw(viewProjection_);
 	}
+
+		// 天球の描画
+	skydome_->Draw();
 
 	// モデルの描画後処理
 	Model::PostDraw();
