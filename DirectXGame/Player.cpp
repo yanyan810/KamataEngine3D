@@ -1,151 +1,251 @@
-#define NOMINMAX
 #include "Player.h"
-#include <algorithm>
 using namespace KamataEngine;
 
-
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
-
-	assert(model);
-	model_ = model;
-	textureHandle_ = textureHandle;
-	worldTransform_.Initialize();
-	input_ = Input::GetInstance();
-
-	SetCollisionAttribute(kCollisionAttributePlayer);
-	SetCollisionMask(kCollisionAttributeEnemy | kCollisionAttributeEnemyBullet);
-
+void Player::SetGraphics(Model* model, Camera* camera) {
+	s_model_ = model;
+	s_camera_ = camera;
 }
 
-Player::~Player() {
-	for (PlayerBullet* bullet : bullets_) {
-		delete bullet;
+void Player::Initialize(const Vector3& pos, const GameParams& params) {
+	pos_ = pos;
+	params_ = params;
+	hp_ = params.playerMaxHP;
+	ammo_ = params.maxAmmo;
+	invincibleTimer_ = 0.0f;
+
+	objectColor_.Initialize();
+	color_ = {1.0f, 1.0f, 1.0f, 0.5f}; // 初期カラー（白）
+
+	world_.Initialize();
+	world_.scale_ = {1.0f, 1.0f, 1.0f};
+	world_.rotation_ = {0.0f, 1.55f, 0.0f};
+	world_.translation_ = pos_;
+	world_.matWorld_ = MakeAffineMatrix(world_.scale_, world_.rotation_, world_.translation_);
+	world_.TransferMatrix();
+}
+
+void Player::SetDeadPose() {
+	// 仰向けの角度に調整（例：背中を下に向ける）
+	world_.translation_ = {0.0f, 0.0f, -30.0f};
+	world_.rotation_ = {1.5f, 0.0f, 0.0f}; // X軸に回転（正面を上に）
+	world_.matWorld_ = MakeAffineMatrix(world_.scale_, world_.rotation_, world_.translation_);
+	world_.TransferMatrix();
+}
+
+
+void Player::OnHit() {
+	// ★ 回転中は無敵
+	if (rotationTime_ > 0.0f)
+		return;
+
+	hp_--;
+	invincibleTimer_ = params_.invincibleTimeAfterHit; // ←通常ダメージ用だけに使う
+	FireRadialBullets();
+}
+
+void Player::Oncollision() {
+	if (rotationTime_ > 0.0f || invincibleTimer_ > 0.0f)
+		return;
+
+	if (hp_ > 0) {
+		hp_ -= 1;
+		ammo_ -= 100;
+		invincibleTimer_ = params_.invincibleTimeAfterHit;
+
+		FireRadialBullets(); // 💥イクラ発射！
 	}
 }
 
-void Player::Rotate() {
-	//回転速さ
-	const float kRotSpeed = 0.02f;
+// Player.cpp
+void Player::TitleHit() {
+	// 既に無敵中は再発動しない
+	if (invincibleTimer_ > 0.0f)
+		return;
 
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_A)) {
-		worldTransform_.rotation_.y -= kRotSpeed;
-	} else if (input_->PushKey(DIK_D)){
+	// 無敵だけ付与（体力/弾は触らない）
+	invincibleTimer_ = params_.invincibleTimeAfterHit;
 
-		worldTransform_.rotation_.y += kRotSpeed;
+	// ★回転は開始しない（常に0を維持）
+	rotationTime_ = 0.0f;
 
+	// イクラ弾を放射
+	FireRadialBullets();
+}
+
+void Player::UpdateDemo(float dt) {
+	// 一定時間ごとに方向をランダムに変える
+	static float changeDirTimer = 0.0f;
+	static Vector3 dir{0, 0, 0};
+
+	changeDirTimer -= dt;
+	if (changeDirTimer <= 0.0f) {
+		// 新しい方向を完全ランダムに
+		float angle = static_cast<float>(rand()) / RAND_MAX * 2.0f * 3.14159f;
+		dir.x = std::cos(angle);
+		dir.y = std::sin(angle);
+
+		changeDirTimer = 0.5f + (rand() % 100) / 50.0f; // 0.5〜2.5秒で切替
 	}
 
+	// 移動
+	pos_.x += dir.x * moveSpeed_;
+	pos_.y += dir.y * moveSpeed_;
 
-}
+	// ゆらゆら泳ぐ動きも追加
+	static float swimTimer = 0.0f;
+	swimTimer += dt * 10.0f;
+	pos_.y += std::sin(swimTimer) * 0.05f;
 
-Vector3 Player::GetPosition() { 
+	// 画面端でバウンドするようにする（はみ出さないように）
+	if (pos_.x <= params_.moveLimitMinX || pos_.x >= params_.moveLimitMaxX) {
+		dir.x = -dir.x;
+	}
+	if (pos_.y <= params_.moveLimitMinY || pos_.y >= params_.moveLimitMaxY) {
+		dir.y = -dir.y;
+	}
 
-	Vector3 worldPos;
+	// 移動制限
+	pos_.x = std::clamp(pos_.x, params_.moveLimitMinX, params_.moveLimitMaxX);
+	pos_.y = std::clamp(pos_.y, params_.moveLimitMinY, params_.moveLimitMaxY);
 
-	worldPos = worldTransform_.translation_;
-
-	return worldPos;
-
-}
-
-//// 何もしない
-//void Player::OnCollision() {
-//
-//
-//
-//}
-
-void Player::Attack() { 
-	if (input_->TriggerKey(DIK_SPACE)) {
-
-		//球の速度
-		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
-
-		//速度ベクトルを自機の向きに合わせて回転させる
-		velocity = Matrix4x4_::TransformNormal(velocity, worldTransform_.matWorld_);
+	// WorldTransform 同期
+	world_.translation_ = pos_;
+	world_.matWorld_ = MakeAffineMatrix(world_.scale_, world_.rotation_, world_.translation_);
+	world_.TransferMatrix();
 	
-		//球を生成し初期化
-		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(worldTransform_.translation_,velocity);
-
-		//球を登録
-		bullets_.push_back(newBullet);
-
+		if (invincibleTimer_ > 0.0f) {
+		invincibleTimer_ -= dt;
+		if (invincibleTimer_ < 0.0f)
+			invincibleTimer_ = 0.0f;
 	}
 
 }
 
-void Player::Updata() {
-	
-WorldTrnasformUpdate(worldTransform_);
 
-	Vector3 move = {0, 0, 0};
-	//移動速度
-	const float kCharacterSpeed = 0.2f;
+void Player::FireRadialBullets() {
+	const int bulletCount = 16; // 弾の数
+	const float speed = 15.0f;
 
-	//ですっフラグの立った球を削除
-	bullets_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
+	for (int i = 0; i < bulletCount; ++i) {
+		float angle = (2.0f * 3.14159265f * i) / bulletCount;
+
+		Vector3 dir = {
+		    std::cos(angle), std::sin(angle),
+		    0.0f // ★ Z方向に飛ばさない
+		};
+		Vector3 velocity = dir * speed;
+
+		if (onFireCallback_) {
+			onFireCallback_(pos_, velocity);
+		}
+	}
+}
+
+
+bool Player::TryFire() {
+	Input* input = Input::GetInstance();
+
+	if (input->TriggerKey(DIK_SPACE) && ammo_ > 0) {
+		ammo_ -= 50;
+
+		// ★ 回転してないときだけ回転開始
+		if (rotationTime_ <= 0.0f) {
+			rotationDuration_ = 2.0f;
+			rotationTime_ = rotationDuration_;
+			rotationStartZ_ = world_.rotation_.z;
 		}
 
-		return false;
-
-	});
-
-	Rotate();
-
-	//押した方向でベクトル変更
-	if (input_->PushKey(DIK_LEFT)) {
-		move.x -= kCharacterSpeed;
+		// ★ 弾は毎回出す（連打可能）
+		FireRadialBullets();
+		return true;
+	}
 	
-	} else if(input_->PushKey(DIK_RIGHT)) {
-		move.x += kCharacterSpeed;
+	return false;
+}
+
+
+
+void Player::Update(float dt) {
+	Input* input = Input::GetInstance();
+	Vector3 direction{};
+
+	// 入力方向
+	if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_A))
+		direction.x -= 1.0f;
+	if (input->PushKey(DIK_RIGHT) || input->PushKey(DIK_D))
+		direction.x += 1.0f;
+	if (input->PushKey(DIK_UP) || input->PushKey(DIK_W))
+		direction.y += 1.0f;
+	if (input->PushKey(DIK_DOWN) || input->PushKey(DIK_S))
+		direction.y -= 1.0f;
+
+	// 正規化
+	if (direction.x != 0.0f || direction.y != 0.0f) {
+		float len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+		direction.x /= len;
+		direction.y /= len;
 	}
 
-		if (input_->PushKey(DIK_UP)) {
-		move.y += kCharacterSpeed;
+	// 入力移動
+	pos_.x += direction.x * moveSpeed_;
+	pos_.y += direction.y * moveSpeed_;
 
-	} else if (input_->PushKey(DIK_DOWN)) {
-		move.y -= kCharacterSpeed;
+	if (rotationTime_ <= 0.0f && invincibleTimer_ <= 0.0f) {
+		// --- 常に上下に揺れる処理 ---
+		static float swimTimer = 0.0f;
+		swimTimer += dt * 10.0f;               // 揺れの速さ
+		pos_.y += std::sin(swimTimer) * 0.05f; // 揺れの振幅
+	}
+	// 回転演出（無敵回転）
+	if (rotationTime_ > 0.0f) {
+		rotationTime_ -= dt;
+
+		float t = std::clamp(1.0f - (rotationTime_ / rotationDuration_), 0.0f, 1.0f);
+		float spin = std::sin(t * 3.1415f * 4.0f);
+		world_.rotation_.z = rotationStartZ_ + spin * 3.1415f * 2.0f;
+
+		if (rotationTime_ <= 0.0f) {
+			rotationTime_ = 0.0f;
+			world_.rotation_.z = rotationStartZ_;
+		}
 	}
 
-	const float kMoveLimitX = 34.0f;
-	const float kMoveLimitY = 18.0f;
-
-	Attack();
-
-	//弾更新
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Updata();
-	
+	// 無敵タイマー処理
+	if (invincibleTimer_ > 0.0f) {
+		invincibleTimer_ -= dt;
+		if (invincibleTimer_ < 0.0f)
+			invincibleTimer_ = 0.0f;
 	}
 
+	// 移動制限
+	pos_.x = std::clamp(pos_.x, params_.moveLimitMinX, params_.moveLimitMaxX);
+	pos_.y = std::clamp(pos_.y, params_.moveLimitMinY, params_.moveLimitMaxY);
 
-	//座標移動
-	worldTransform_.translation_ += move;
-	
-		// 範囲を超えない処理
-	worldTransform_.translation_.x = std::clamp(worldTransform_.translation_.x, -kMoveLimitX, +kMoveLimitX);
-	worldTransform_.translation_.y = std::clamp(worldTransform_.translation_.y, -kMoveLimitY, +kMoveLimitY);
-
-
-
-	ImGui::SliderFloat3("Player", &worldTransform_.translation_.x,20.0f, -20.0f);
-	
-
+	// WorldTransform 同期
+	world_.translation_ = pos_;
+	world_.matWorld_ = MakeAffineMatrix(world_.scale_, world_.rotation_, world_.translation_);
+	world_.TransferMatrix();
 
 }
 
-void Player::Draw(Camera& viewProjection) {
-	model_->Draw(worldTransform_,viewProjection ,textureHandle_);
 
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Draw(viewProjection);
+void Player::Draw() {
+	if (!s_model_ || !s_camera_)
+		return;
+
 	
+
+
+	if (rotationTime_ > 0.0f || invincibleTimer_ > 0.0f) {
+		
+		objectColor_.SetColor(color_); // カラー設定
+
+		s_model_->Draw(world_, *s_camera_,&objectColor_);
+
+
+
+	} else {
+		s_model_->Draw(world_, *s_camera_);
 	}
 
 }

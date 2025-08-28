@@ -1,172 +1,37 @@
 #include "Enemy.h"
-#define NOMINMAX
-#include "MapChipFiled.h"
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#define _USE_MATH_DEFINES
-#include "EnemyState_Approach.h" // ← これを追加
-#include <numbers>
-#include "Player.h"
-
 using namespace KamataEngine;
 
-void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHandle) {
-	assert(model);
-	model_ = model;
-	textureHandle_ = textureHandle;
-	worldTransform_.Initialize();
-	worldTransform_.translation_ = position;
-
-	input_ = Input::GetInstance();
-
-	SetState(new EnemyState_Approach());
-
-	ApproachInitialize();
-
-	SetCollisionAttribute(kCollisionAttributeEnemy);
-
-	// 自分は「プレイヤーと自弾」に当たりたい場合
-	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayerBullet);
+void Aquatic::SetGraphics(Model* model, Camera* camera) {
+	s_model_ = model;
+	s_camera_ = camera;
 }
 
-Enemy::~Enemy() {
+void Aquatic::Initialize(const Vector3& pos, const Vector3& vel, float radius) {
+	pos_ = pos;
+	vel_ = vel;
+	radius_ = radius;
+	alive_ = true;
 
-	for (EnemyBullet* bullet_ : bullets_) {
-		delete bullet_;
-	}
-
-	for (TimedeCall& timedCall : timedCalls_) {
-		timedCall.~TimedeCall(); // 明示的にデストラクタを呼び出す
-	}
-
+	world_.Initialize();
+	world_.scale_ = {radius_ * 0.1f, radius_ * 0.1f, radius_ * 0.1f}; // モデル基準に応じて調整
+	world_.rotation_ = {0, 0, 0};
+	world_.translation_ = pos_;
+	world_.matWorld_ = MakeAffineMatrix(world_.scale_, world_.rotation_, world_.translation_);
+	world_.TransferMatrix();
 }
 
-Vector3 Enemy::GetWorldPosition() {
-	Vector3 worldPos;
-	worldPos = worldTransform_.translation_;
-	return worldPos;
+void Aquatic::Update(float dt) {
+	if (!alive_)
+		return;
+	pos_ = pos_ + vel_ * dt;
+
+	world_.translation_ = pos_;
+	world_.matWorld_ = MakeAffineMatrix(world_.scale_, world_.rotation_, world_.translation_);
+	world_.TransferMatrix();
 }
 
-void Enemy::DecrementFireTimer() {
-	if (fireTimer > 0) {
-		fireTimer--;
-	}
-}
-
-bool Enemy::IsFireTimerExpired() const { return fireTimer <= 0; }
-
-void Enemy::Fire() {
-
-	assert(player_); // プレイヤーが設定されていることを確認
-
-	//球の速さ
-	const float kBulletSpeed = 1.0f;
-
-	//自キャラのワールド座標を取得する
-	Vector3 playerPosition = player_->GetPosition();
-	//敵キャラのワールド座標を取得する
-	Vector3 enemyPosition = GetWorldPosition();
-	//敵から自キャラの差分のベクトルを求める
-	Vector3 vector = playerPosition - enemyPosition;
-	//ベクトルの正規化
-	vector = Normalize(vector);
-	//ベクトルの長さを早さに合わせる
-	vector *= kBulletSpeed;
-
-
-	EnemyBullet* newBullet = new EnemyBullet();
-	newBullet->Initialize( worldTransform_.translation_, vector, player_);
-	bullets_.push_back(newBullet);
-
-	
-}
-
-void Enemy::ApproachInitialize() {
-	fireTimer = kFIreInterval;
-
-	// 最初の発射を予約
-	std::function<void(void)> callback = std::bind(&Enemy::FireReset, this);
-	timedCalls_.emplace_back(callback, kFIreInterval);
-}
-
-
-void Enemy::FireReset() {
-	Fire(); 
-	// 発射タイマーをリセット
-	std::function<void(void)> callback = std::bind(&Enemy::FireReset, this);
-
-	//時限発動イベントを生成
-	TimedeCall* timedCall = new TimedeCall(callback, kFIreInterval);
-
-	//時限発動イベントを時限発動イベントリストに追加
-	timedCalls_.push_back(*timedCall);
-
-}
-
-//何もしない
-
-void Enemy::OnCollision() {
-
-	
-}
-
-void Enemy::Update() {
-
-	// 　ですフラグの立った球を削除
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-
-		return false;
-	});
-
-	if (state_) {
-		state_->Update(this);
-	}
-
-	for (EnemyBullet* bullet_ : bullets_) {
-		bullet_->Update(); // 弾の更新処理をここに入れる
-	}
-
-
-
-	timedCalls_.remove_if([](TimedeCall& timedCall) {
-		timedCall.Update();
-		return timedCall.IsFinished();
-	});
-
-	ImGui::Text("Fire Timer: %d", fireTimer);
-
-}
-
-void Enemy::SetState(EnemyState* newState) {
-	// フェーズ変更時に発射予約を中断
-	timedCalls_.clear(); // これで発射予約をすべて破棄
-
-	if (state_) {
-		delete state_;
-	}
-	state_ = newState;
-	state_->Enter(this);
-}
-
-
-void Enemy::Move(const Vector3& velocity) {
-	worldTransform_.translation_ += velocity;
-	WorldTrnasformUpdate(worldTransform_);
-}
-
-const Vector3& Enemy::GetPosition() const { return worldTransform_.translation_; }
-
-void Enemy::Draw(const Camera& camera) {
-	model_->Draw(worldTransform_, camera, textureHandle_);
-	for (EnemyBullet* bullet_ : bullets_) {
-		bullet_->Draw(camera); // 弾の描画もここで
-	}
-
-
-
+void Aquatic::Draw() {
+	if (!alive_ || !s_model_ || !s_camera_)
+		return;
+	s_model_->Draw(world_, *s_camera_);
 }

@@ -1,76 +1,29 @@
 #pragma once
-#include "AABB.h"
 #include "KamataEngine.h"
-#include "WorldTransformClass.h"
-#include "Easing.h"
 #include "Operator.h"
-#include "EnemyState.h"
-#include "EnemyBullet.h"
-#include "TimedeCall.h"
-#include "Collider.h"
-//#include "Player.h"
-#include "CollisionConfig.h"
-class Player;
-
-class Enemy: public Collider {
+#include "WorldTransformClass.h"
+class Aquatic {
 public:
+	void Initialize(const KamataEngine::Vector3& pos, const KamataEngine::Vector3& vel, float radius);
+	void Update(float dt);
+	void Draw();
 
-	~Enemy();
+	void Kill() { alive_ = false; }
+	bool IsAlive() const { return alive_; }
 
-	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, uint32_t textureHandle);
-	void Update();
-	void Draw(const KamataEngine::Camera& camera);
+	const KamataEngine::Vector3& GetPosition() const { return pos_; }
+	float GetRadius() const { return radius_; }
 
-	void SetState(EnemyState* newState);
-	void Move(const KamataEngine::Vector3& velocity);
-	const KamataEngine::Vector3& GetPosition() const;
-
-	void Fire();
-
-	//発射感覚
-	static const int kFIreInterval = 60;
-
-	void ApproachInitialize();
-
-	void DecrementFireTimer();       // タイマーを1減らす
-	bool IsFireTimerExpired() const; // 0以下になったか
-
-	/// <summary>
-	/// 球を発射しリセットする関数
-	/// </summary>
-	void FireReset();
-
-	void SetPlayer(Player* player) { player_ = player; }
-
-	KamataEngine::Vector3 GetWorldPosition();
-
-	//衝突を検知したら曜日出されるコールバック関数
-	void OnCollision();
-
-	// 弾リストを取得
-	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
-	float GetRadius() const { return 1.0f; } // 敵の半径（仮値）
-
-	KamataEngine::Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
-
+	// ★ 追加
+	static void SetGraphics(KamataEngine::Model* model, KamataEngine::Camera* camera);
 
 private:
-	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::Model* model_ = nullptr;
-	uint32_t textureHandle_ = 0;
+	KamataEngine::Vector3 pos_{};
+	KamataEngine::Vector3 vel_{};
+	float radius_ = 14.0f;
+	bool alive_ = true;
 
-	EnemyState* state_ = nullptr;
-
-	std::list<EnemyBullet*> bullets_;
-
-	KamataEngine::Input* input_ = nullptr;
-
-	//発射タイマー
-	int32_t fireTimer = 0;
-
-	std::list<TimedeCall> timedCalls_;
-
-	Player* player_ = nullptr;
-
-	KamataEngine::Model* bulletModel_ = nullptr; // 弾のモデル
+	KamataEngine::WorldTransform world_{};
+	static inline KamataEngine::Model* s_model_ = nullptr;
+	static inline KamataEngine::Camera* s_camera_ = nullptr;
 };

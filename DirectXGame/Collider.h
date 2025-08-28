@@ -1,25 +1,17 @@
-
 #pragma once
+#include "AABB.h" // 既存のAABB {Vector3 min,max} を想定
 #include "KamataEngine.h"
-using KamataEngine::Vector3;
 
-class Collider {
+inline bool CheckCollision_CircleCircle(const KamataEngine::Vector3& a, float ra, const KamataEngine::Vector3& b, float rb) {
+	KamataEngine::Vector3 d = {a.x - b.x, a.y - b.y, 0};
+	float dist2 = d.x * d.x + d.y * d.y;
+	float r = ra + rb;
+	return dist2 <= r * r;
+}
 
-public:
-	float GetRadius() const { return radius_; }
-	void SetRadius(float radius) { radius_ = radius; }
-	virtual Vector3 GetWorldPosition() const = 0; // 純粋仮想関数
-	virtual void OnCollision() = 0;               // 純粋仮想関数
-
-	  void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
-	void SetCollisionMask(uint32_t mask) { collisionMask_ = mask; }
-
-	uint32_t GetCollisionAttribute() const { return collisionAttribute_; }
-	uint32_t GetCollisionMask() const { return collisionMask_; }
-
-private:
-	float radius_ = 1.0f; // デフォルト半径
-
-	uint32_t collisionAttribute_ = 0xffffffff; // 自分の属性（例：プレイヤー）
-	uint32_t collisionMask_ = 0xffffffff;      // 何に当たるか（マスク）
-};
+inline bool CheckCollision_CircleAABB(const KamataEngine::Vector3& c, float r, const AABB& box) {
+	float nx = std::max<float>(box.min.x, std::min<float>(c.x, box.max.x));
+	float ny = std::max<float>(box.min.y, std::min<float>(c.y, box.max.y));
+	float dx = c.x - nx, dy = c.y - ny;
+	return (dx * dx + dy * dy) <= r * r;
+}

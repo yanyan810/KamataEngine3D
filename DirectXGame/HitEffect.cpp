@@ -1,4 +1,5 @@
 #include "HitEffect.h"
+#include <cassert>
 
 // 静的メンバ変数の実態
 KamataEngine::Model* HitEffect::model_ = nullptr;

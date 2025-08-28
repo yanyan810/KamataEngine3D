@@ -1,58 +1,32 @@
 #pragma once
 #include "KamataEngine.h"
-#include "WorldTransformClass.h"
 #include "Operator.h"
-#include "Collider.h"
-#include "CollisionConfig.h"
-
-class PlayerBullet:public Collider {
+#include "WorldTransformClass.h"
+class Bullet {
 public:
+	void Initialize(const KamataEngine::Vector3& pos, const KamataEngine::Vector3& vel, float lifeSec = 2.0f);
+	void Update(float dt);
+	void Draw();
 
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <param name="position">初期座標</param>
-	void Initialize( const KamataEngine::Vector3& position,const KamataEngine::Vector3& velocity);
+	bool IsDead() const { return life_ <= 0.0f; }
+	const KamataEngine::Vector3& GetPosition() const { return pos_; }
+	float GetRadius() const { return radius_; }
 
-	/// <summary>
-	/// 更新
-	/// </summary>
-	void Updata();
+	// ★ 追加
+	static void SetGraphics(KamataEngine::Model* model, KamataEngine::Camera* camera);
 
-
-	/// <summary>
-	/// 描画
-	/// </summary>
-	/// <param name="camera">カメラ</param>
-	void Draw(const KamataEngine::Camera& camera);
-
-	bool IsDead() const { return isDead_; }
-
-	// 衝突を検知したら曜日出されるコールバック関数
-	void OnCollision();
-
-	KamataEngine::Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
-
-
-	KamataEngine::Vector3 GetPositon() {
-		KamataEngine::Vector3 worldPos;
-		worldPos = worldTransform_.translation_;
-		return worldPos;
-	}
-
-	float GetRadius() const { return 0.5f; }  
-
-		static void LoadModel();
+	void Kill() { life_ = 0.0f; }
 
 private:
+	KamataEngine::Vector3 pos_{};
+	KamataEngine::Vector3 vel_{};
+	float life_ = 0.0f;
+	float radius_ = 4.0f;
 
-	KamataEngine::WorldTransform worldTransform_;
-	static KamataEngine::Model* model_;
-	uint32_t textureHandle_ = 0;
-	KamataEngine::Vector3 velosity_;
-	static const int32_t kLifeTime = 60 * 5;
-	int32_t deathTimer_ = kLifeTime;
-	//デスフラグ
-	bool isDead_ = false;
+	
+
+	// ★ 追加
+	KamataEngine::WorldTransform world_{};
+	static inline KamataEngine::Model* s_model_ = nullptr;
+	static inline KamataEngine::Camera* s_camera_ = nullptr;
 };

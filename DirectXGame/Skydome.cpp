@@ -1,4 +1,6 @@
 #include "Skydome.h"
+#include <cassert>
+
 using namespace KamataEngine;
 using namespace MathUtility;
 
@@ -19,14 +21,10 @@ void Skydome::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camer
 	worldTransform_.translation_ = {0.0f, 0.0f, 0.0f};
 	worldTransform_.scale_ = {100.0f, 100.0f, 100.0f}; // 大きめにしてみる
 	worldTransform_.TransferMatrix();
-
-
 }
 
 void Skydome::Update() {}
 
-void Skydome::Draw() {
-
+void Skydome::Draw() { 
 	model_->Draw(worldTransform_, *camera_);
-
 }

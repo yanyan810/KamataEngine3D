@@ -1,81 +1,74 @@
 #pragma once
-#include "AABB.h"
+#include "GameParams.h"
 #include "KamataEngine.h"
-#include "Matrix4x4_.h"
 #include "WorldTransformClass.h"
-#include <cassert>
-#include "Easing.h"
 #include "Operator.h"
-#include "PlayerBullet.h"
-#include "Collider.h"
-#include "CollisionConfig.h"
-/// <summary>
-/// 自キャラ
-/// </summary>
-class Player : public Collider {
-
+#include <functional>
+class Player {
 public:
+	// 既存API
+	void Initialize(const KamataEngine::Vector3& pos, const GameParams& params);
+	void Update(float dt);
+	void Draw();
 
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
-	~Player();
-	
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	/// <param name="model">モデル</param>
-	/// <param name="textureHandle">テクスチャハンドル</param>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle);
+	bool TryFire();
+	void OnHit();
 
-	/// <summary>
-	/// 更新
-	/// </summary>
-	void Updata();
+	// ★ 追加: モデル＆カメラ注入
+	static void SetGraphics(KamataEngine::Model* model, KamataEngine::Camera* camera);
 
-	
-	/// <summary>
-	/// 描画
-	/// </summary>
-	void Draw(KamataEngine::Camera& viewProjection);
+	// Getter
+	const KamataEngine::Vector3& GetPosition() const { return pos_; }
+	float GetRadius() const { return params_.playerRadius; }
+	int GetHP() const { return hp_; }
+	int GetAmmo() const { return ammo_; }
+	bool IsAlive() const { return hp_ > 0; }
 
-	/// <summary>
-	/// 回転
-	/// </summary>
-	void Rotate();
+	void Oncollision();
 
-	/// <summary>
-	/// 攻撃
-	/// </summary>
-	void Attack();
+	bool IsRotating() const { return rotationTime_ > 0.0f; }
 
-	KamataEngine::Vector3 GetPosition();
+	void SetDeadPose(); // 👈 追加
 
-	// 衝突を検知したら曜日出されるコールバック関数
-	//void OnCollision();
 
-		// 弾リストを取得
-	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+	// 弾を出すためのコールバック（GameSceneから渡す）
+	using FireCallback = std::function<void(const KamataEngine::Vector3& pos, const KamataEngine::Vector3& vel)>;
+	void SetOnFireCallback(const FireCallback& cb) { onFireCallback_ = cb; }
 
-	float GetRadius() const { return 1.0f; } // 自キャラの半径（仮値）
+	 void UpdateDemo(float dt);
 
-	 Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
+	void FireRadialBullets(); // 回転時に呼ぶ
 
-	void OnCollision() override {
-		// プレイヤーの衝突時処理
-	}
+	// タイトル中の当たり判定（HP関連の副作用なし）
+	void CheckCollisionsTitle();
+
+	// タイトルでのヒット演出（HP/Ammoを減らさない）
+	void TitleHit();
+
 
 private:
+	KamataEngine::Vector3 pos_{};
+	KamataEngine::Vector3 vel_{};
+	int hp_ = 20;
+	int ammo_ = 1000;
+	float invincibleTimer_ = 0.0f;
+	GameParams params_{};
 
-		// 弾
-	std::list<PlayerBullet*> bullets_;
+	// ★ 追加: 描画用
+	KamataEngine::WorldTransform world_{};
 
-	KamataEngine::Input* input_ = nullptr;
-	
-	KamataEngine::WorldTransform worldTransform_; // ワールド変形
-	KamataEngine::Model* model_ = nullptr;        // モデル
-	uint32_t textureHandle_ = 0;                  // テクスチャハンドル
+	// ★ 追加: 静的共有リソース
+	static inline KamataEngine::Model* s_model_ = nullptr;
+	static inline KamataEngine::Camera* s_camera_ = nullptr;
+	float rotationTime_ = 0.0f; // 回転演出用タイマー
+	float rotationDuration_ = 0.0f; // 全体の時間（補間計算用）
+	float rotationStartZ_ = 0.0f; // ← 回転前の角度
+	 float moveSpeed_ = 0.3f;
 
-	KamataEngine::Model* playerBulletModel = nullptr; // プレイヤーのモデル
+	KamataEngine::ObjectColor objectColor_; // オブジェクトカラー管理
+
+	 KamataEngine::Vector4 color_;
+
+	 FireCallback onFireCallback_ = nullptr;
 
 };
