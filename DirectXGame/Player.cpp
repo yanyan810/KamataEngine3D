@@ -49,7 +49,7 @@ void Player::Oncollision() {
 
 	if (hp_ > 0) {
 		hp_ -= 1;
-		ammo_ -= 100;
+		ammo_ -= 300;
 		invincibleTimer_ = params_.invincibleTimeAfterHit;
 
 		FireRadialBullets(); // 💥イクラ発射！
@@ -146,11 +146,11 @@ bool Player::TryFire() {
 	Input* input = Input::GetInstance();
 
 	if (input->TriggerKey(DIK_SPACE) && ammo_ > 0) {
-		ammo_ -= 50;
+		ammo_ -= 200;
 
 		// ★ 回転してないときだけ回転開始
 		if (rotationTime_ <= 0.0f) {
-			rotationDuration_ = 2.0f;
+			rotationDuration_ = 1.0f;
 			rotationTime_ = rotationDuration_;
 			rotationStartZ_ = world_.rotation_.z;
 		}

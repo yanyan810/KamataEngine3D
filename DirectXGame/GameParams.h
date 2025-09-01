@@ -8,7 +8,7 @@ struct GameParams {
 	float playerRadius = 1.0f;
 	float bulletRadius = 4.0f;
 	float enemyRadius = 1.0f;
-	float invincibleTimeAfterHit = 2.0f; // 被弾後の無敵(秒)
+	float invincibleTimeAfterHit = 1.0f; // 被弾後の無敵(秒)
 
 	float moveLimitMinX = -5.0f;
 	float moveLimitMaxX = 5.0f;

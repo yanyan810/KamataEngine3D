@@ -427,7 +427,7 @@ void GameScene::UpdatePlay() {
 			float x2 = spawnLeftSide_ ? -5.0f : +5.0f;
 			spawnLeftSide_ = !spawnLeftSide_;
 
-			float y2 = static_cast<float>(rand() % 8 - 5);
+			float y2 = static_cast<float>(rand() % 8 - 4);
 			float w2 = 1.5f;
 			float h2 = 1.5f;
 			float d2 = static_cast<float>(rand() % 1 + 1);
@@ -443,7 +443,7 @@ void GameScene::UpdatePlay() {
 			// --- 2. 60%の確率で中央にも「もう1個」岩を出す ---
 			if (rand() % 10 < 6) {                             // 50%
 				float cx = static_cast<float>(rand() % 6 - 3); // 中央付近に散らす
-				float cy = static_cast<float>(rand() % 10 - 8);
+				float cy = static_cast<float>(rand() % 10 - 4);
 				float cz = 800.0f;
 				Vector3 cmin = {cx, cy, cz};
 				Vector3 cmax = {cx + w2, cy + h2, cz + d2};
@@ -633,7 +633,8 @@ void GameScene::UpdateDifficultySelect() {
 		} else if (diffSelectIndex_ == 1) {
 			// Hard
 			isHardMode_ = true;
-			appearZ_ = 100.0f; // 100 or 200 お好みで
+			appearZ_ = 50.0f; // 100 or 200 お好みで
+			goalSpawnTimeSec_ = 90.0f;
 			phase_ = GamePhase::FadeOutToPlay;
 			fadeTimer_ = 0.0f;
 		} else {
