@@ -51,7 +51,7 @@ public:
 	// マップチップCSVの読み込み
 	void LoadMapChipCsv(const std::string& filePath);
 
-	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) const;
 
 	KamataEngine::Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
 
@@ -59,8 +59,8 @@ public:
 	uint32_t GetNumBlockVirtical() { return kNumBlockVirtical; }
 	uint32_t GetNumBlockHorizontal() { return kNumBlockHorizontal; }
 
-	IndexSet GetMapChipIndexByPosition(const KamataEngine::Vector3& position);
-	
+	IndexSet GetMapChipIndexByPosition(const KamataEngine::Vector3& position) const;
+
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 private:

@@ -15,7 +15,7 @@ std::map<std::string, MapChipField::MapChipType> mapChipTable = {
 
 }
 
-MapChipField::IndexSet MapChipField::GetMapChipIndexByPosition(const KamataEngine::Vector3& position) {
+MapChipField::IndexSet MapChipField::GetMapChipIndexByPosition(const KamataEngine::Vector3& position) const {
 	MapChipField::IndexSet indexSet = {};
 	indexSet.xIndex = static_cast<uint32_t>((position.x + MapChipField::kBlockWidth / 2.0f) / MapChipField::kBlockWidth);
 
@@ -59,7 +59,7 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	}
 }
 
-MapChipField::MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) {
+MapChipField::MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) const {
 	if (xIndex >= kNumBlockHorizontal || yIndex >= kNumBlockVirtical) {
 		return MapChipType::kBlank;
 	}

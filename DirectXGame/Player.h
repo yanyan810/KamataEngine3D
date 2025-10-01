@@ -1,10 +1,10 @@
 #pragma once
 #include "AABB.h"
+#include "Easing.h"
 #include "KamataEngine.h"
 #include "Matrix4x4_.h"
 #include "WorldTransformClass.h"
 #include <cassert>
-#include "Easing.h"
 
 // 02_14の29ページから再開
 
@@ -157,11 +157,11 @@ private:
 	KamataEngine::Model* attackModel_ = nullptr;
 	KamataEngine::WorldTransform worldTransformAttack_;
 
-	static inline const float kAcceleration = 0.05f;
+	static inline const float kAcceleration = 0.1f;
 
 	static inline const float kAttenuation = 0.05f;
 
-	static inline const float kLimitRunSpeed = 0.7f;
+	static inline const float kLimitRunSpeed = 0.5f;
 
 	LRDirection lrDirection_ = LRDirection::kRight;
 
@@ -178,7 +178,7 @@ private:
 	// 重力加速度
 	static inline const float kGravityAcceleration = 0.1f;
 	// 最大落下速度
-	static inline const float kLimitFallSpeed = 1.0f;
+	static inline const float kLimitFallSpeed = 0.1f;
 	// ジャンプ初速
 	static inline const float kJumpAcceleration = 1.0f;
 	static inline const float kBlank = 2.0f;
@@ -207,7 +207,6 @@ private:
 
 	KamataEngine::WorldTransform correctionTransform; // マップチップの座標補正用
 
-	//攻撃フラグ
+	// 攻撃フラグ
 	bool isAttack_ = false;
-
 };
