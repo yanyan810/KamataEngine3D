@@ -19,7 +19,7 @@ void Title::Update() {
 
 	// 上下に浮かぶようにY座標をアニメーション
 	floatTimer_ += 0.05f; // 動きの速さ（大きくすると速くなる）
-
+	 
 	// Y座標を元の位置から ±10 ピクセル範囲で上下させる
 	worldTransform_.translation_.y = basePosition_.y + std::sinf(floatTimer_) * 10.0f;
 
