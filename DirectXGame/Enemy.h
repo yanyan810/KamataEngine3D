@@ -45,13 +45,28 @@ public:
 	KamataEngine::Vector3 GetWorldPosition();
 
 	//衝突を検知したら曜日出されるコールバック関数
-	void OnCollision();
+	//void OnCollision();
 
 	// 弾リストを取得
 	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
 	float GetRadius() const { return 1.0f; } // 敵の半径（仮値）
 
 	KamataEngine::Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
+
+	//生存関係
+	  bool IsAlive() const { return alive_; }
+
+	// 衝突で倒れる想定（弾などで）
+	void OnCollision() override { alive_ = false; }
+
+	AABB GetAABB() const {
+		const float r = GetRadius(); // いまは 1.0f を返している想定
+		const auto c = worldTransform_.translation_;
+		return AABB{
+		    {c.x - r, c.y - r, c.z - r},
+            {c.x + r, c.y + r, c.z + r}
+        };
+	}
 
 
 private:
@@ -73,4 +88,7 @@ private:
 	Player* player_ = nullptr;
 
 	KamataEngine::Model* bulletModel_ = nullptr; // 弾のモデル
+
+	//生存フラグ
+	   bool alive_ = true;
 };

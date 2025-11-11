@@ -4,8 +4,14 @@ using namespace MathUtility;
 
 void Skydome::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera) {
 
-	// NULLポインタチェック
+	#ifdef DEBUG
+
+		// NULLポインタチェック
 	assert(model);
+
+#endif // DEBUG
+
+
 
 	// 引数の内容をメンバ変数に記録
 	model_ = model;
@@ -27,6 +33,12 @@ void Skydome::Update() {}
 
 void Skydome::Draw() {
 
-	model_->Draw(worldTransform_, *camera_);
+	
+		//KamataEngine::DirectXCommon* dxCommon = KamataEngine::DirectXCommon::GetInstance();
+
+	//KamataEngine::Sprite::PreDraw(dxCommon->GetCommandList());
+	    model_->Draw(worldTransform_, *camera_);
+
+	//KamataEngine::Sprite::PostDraw();
 
 }

@@ -65,7 +65,42 @@ public:
 		// プレイヤーの衝突時処理
 	}
 
+	   // ゴール
+	void SetGoalX(float x) { goalX_ = x; }  // ゴール位置を設定
+	bool IsGoal() const { return isGoal_; } // ゴール済みフラグを返す
+
+
+	//カメラ関係
+	void EnableLockX(float minX, float maxX) {
+		lockXEnabled_ = true;
+		lockMinX_ = minX;
+		lockMaxX_ = maxX;
+	}
+	void DisableLockX() { lockXEnabled_ = false; }
+
+	//近接用
+	void LoadMell();
+	bool IsMeleeActive() const { return isAttacking_; }
+	AABB GetMeleeAABB() const {
+		AABB aabb;
+		aabb.min = attackPos_ - attackRange_;
+		aabb.max = attackPos_ + attackRange_;
+		return aabb;
+	}
+
 private:
+
+	enum Direction {
+		Left,
+		Right
+	};
+
+	Direction direction_=Right;
+
+	  bool isAttacking_ = false;
+	float attackTimer_ = 0.0f;
+	KamataEngine::Vector3 attackPos_ = {};
+	KamataEngine::Vector3 attackRange_ = {1.5f, 1.5f, 1.5f};
 
 		// 弾
 	std::list<PlayerBullet*> bullets_;
@@ -77,5 +112,19 @@ private:
 	uint32_t textureHandle_ = 0;                  // テクスチャハンドル
 
 	KamataEngine::Model* playerBulletModel = nullptr; // プレイヤーのモデル
+
+	  // ゴール用
+	float goalX_ = 0.0f;  // ゴール位置
+	bool isGoal_ = false; // ゴール達成フラグ
+
+	//カメラ追従関係
+	bool lockXEnabled_ = false;
+	float lockMinX_ = -FLT_MAX;
+	float lockMaxX_ = FLT_MAX;
+
+	//近接用
+	KamataEngine::Model* mellModel_ = nullptr;
+	uint32_t mellTextureHandle_ = 0;
+	KamataEngine::WorldTransform mellWorldTransform_;
 
 };

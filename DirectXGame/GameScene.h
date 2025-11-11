@@ -1,15 +1,18 @@
 #pragma once
+#include "CameraController.h"
+#include "CollisionManager.h"
+#include "Enemy.h"
+#include "EnemyBullet.h"
+#include "Fade.h"
+#include "Goal.h"
 #include "KamataEngine.h"
 #include "Player.h"
-#include "Enemy.h"
-#include "CollisionManager.h"
 #include "Skydome.h"
-#include "EnemyBullet.h"
+
 // ゲームシーン
 class GameScene {
 
 public:
-
 	// 初期化
 	void Initialize();
 
@@ -29,12 +32,29 @@ public:
 
 	// void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 
+	bool IsFinished() const { return finished_; } // ← 追加：メイン側遷移用
+
+	void SpawnWaveInLockArea(int count);
+	bool AnyEnemyAlive() const;
+
+	void ResolveHits();
+
 private:
+	enum class GamePhase { kPlay, kFadeOutOnGoal };
+
+	GamePhase phase_ = GamePhase::kPlay;
+
+	bool finished_ = false;
+
+	Fade* fade_ = nullptr;
+
+	Goal goal_;
+
 	Player* player_ = nullptr;                  // プレイヤーのインスタンス
 	KamataEngine::Model* playerModel = nullptr; // プレイヤーのモデル
 	uint32_t playerTextureHandle_ = 0;          // プレイヤーのテクスチャハンドル
 
-	Enemy* enemy_ = nullptr;
+	std::vector<std::unique_ptr<Enemy>> enemies_;
 	KamataEngine::Model* enemyModel_ = nullptr;
 	uint32_t enemyTextureHandle_ = 0;
 
@@ -48,10 +68,23 @@ private:
 
 	KamataEngine::Input* input_ = nullptr;
 
-	  CollisionManager* collisionManager_ = nullptr;
+	CollisionManager* collisionManager_ = nullptr;
 
-	  KamataEngine::Model* modelSkydome_ = nullptr; // 天球のモデル
+	KamataEngine::Model* modelSkydome_ = nullptr; // 天球のモデル
 
-	  Skydome* skydome_ = nullptr; // 天球
+	Skydome* skydome_ = nullptr; // 天球
+
+	CameraController* cameraController = nullptr;
+
+	// ロック領域（例：X ∈ [lockMinX_, lockMaxX_] に閉じ込める）
+	bool lockActive_ = false;
+	bool lockEngaged_ = false; // 一度入ったら解除まで維持
+	float lockMinX_ = 100.0f;  // ★好みで
+	float lockMaxX_ = 300.0f;  // ★好みで
+
+	// 解除後に戻すカメラ範囲の保存
+	struct {
+		float left, right, bottom, top;
+	} prevCamArea_{-10.0f, 10000.0f, -50.0f, 50.0f};
 
 };

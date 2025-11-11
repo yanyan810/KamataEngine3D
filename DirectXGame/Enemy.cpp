@@ -18,16 +18,31 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 
+	//worldTransform_.translation_.x += 20.0f;
+
+	  worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
+
+	   // ★ これを最初に入れる（静止してても毎フレーム更新）
+	  WorldTrnasformUpdate(worldTransform_);
+
 	input_ = Input::GetInstance();
 
 	SetState(new EnemyState_Approach());
 
 	ApproachInitialize();
 
-	SetCollisionAttribute(kCollisionAttributeEnemy);
+	//SetCollisionAttribute(kCollisionAttributeEnemy);
 
 	// 自分は「プレイヤーと自弾」に当たりたい場合
-	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayerBullet);
+//	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayerBullet);
+
+	// Enemy::Initialize()
+	SetCollisionAttribute(kCollisionAttributeEnemy);
+	// 弾だけ当たるように（プレイヤー本体は外す）
+	SetCollisionMask(kCollisionAttributePlayerBullet);
+
+ OutputDebugStringA(std::format("[Enemy] Initialize pos=({:.2f},{:.2f},{:.2f})\n", worldTransform_.translation_.x, worldTransform_.translation_.y, worldTransform_.translation_.z).c_str());
+
 }
 
 Enemy::~Enemy() {
@@ -103,44 +118,43 @@ void Enemy::FireReset() {
 	timedCalls_.push_back(*timedCall);
 
 }
-
-//何もしない
-
-void Enemy::OnCollision() {
-
-	
-}
-
 void Enemy::Update() {
+	// ★ ワールド更新は先頭で
+	WorldTrnasformUpdate(worldTransform_);
 
-	// 　ですフラグの立った球を削除
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
+	// === プレイヤー追従（XZ平面を想定） ===
+	if (player_) {
+		const Vector3 p = player_->GetWorldPosition();
+		const Vector3 e = worldTransform_.translation_;
+
+		Vector3 dir = p - e;
+		dir.y = 0.0f; // 上下は固定（必要なら外してOK）
+
+		const float len2 = dir.x * dir.x + dir.z * dir.z;
+		if (len2 > 0.0001f) {
+			dir = Normalize(dir);
+
+			// 追従スピード（好みで 0.05〜0.20 くらい）
+			const float speed = 0.08f;
+			worldTransform_.translation_ += dir * speed;
+
+			// 顔の向き（モデルの正面が +Z 前提：+X 右→ ±90°）
+			worldTransform_.rotation_.y = std::atan2(dir.x, dir.z);
 		}
-
-		return false;
-	});
-
-	if (state_) {
-		state_->Update(this);
 	}
 
-	for (EnemyBullet* bullet_ : bullets_) {
-		bullet_->Update(); // 弾の更新処理をここに入れる
-	}
+	// 行列更新
+	WorldTrnasformUpdate(worldTransform_);
 
+	// --- 以降は必要なら弾やタイマーを復帰 ---
+	// for (EnemyBullet* b : bullets_) { b->Update(); }
+	// bullets_.remove_if([](EnemyBullet* b){ if (b->IsDead()){ delete b; return true; } return false; });
 
-
-	timedCalls_.remove_if([](TimedeCall& timedCall) {
-		timedCall.Update();
-		return timedCall.IsFinished();
-	});
-
-	ImGui::Text("Fire Timer: %d", fireTimer);
-
+	#ifdef DEBUG
+	ImGui::Text("EnemyPos: (%.2f, %.2f, %.2f)", worldTransform_.translation_.x, worldTransform_.translation_.y, worldTransform_.translation_.z);
+#endif // DEBUG
 }
+
 
 void Enemy::SetState(EnemyState* newState) {
 	// フェーズ変更時に発射予約を中断
@@ -162,6 +176,7 @@ void Enemy::Move(const Vector3& velocity) {
 const Vector3& Enemy::GetPosition() const { return worldTransform_.translation_; }
 
 void Enemy::Draw(const Camera& camera) {
+	OutputDebugStringA("[Enemy] Draw\n");
 	model_->Draw(worldTransform_, camera, textureHandle_);
 	for (EnemyBullet* bullet_ : bullets_) {
 		bullet_->Draw(camera); // 弾の描画もここで

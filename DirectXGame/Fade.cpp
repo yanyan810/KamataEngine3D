@@ -93,5 +93,7 @@ void Fade::Draw() {
 
 	KamataEngine::Sprite::PreDraw(dxCommon->GetCommandList());
 	sprite_->Draw();
+	
+	 
 	KamataEngine::Sprite::PostDraw();
 }
