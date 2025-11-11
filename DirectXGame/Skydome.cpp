@@ -27,6 +27,12 @@ void Skydome::Update() {}
 
 void Skydome::Draw() {
 
-	model_->Draw(worldTransform_, *camera_);
+	
+		//KamataEngine::DirectXCommon* dxCommon = KamataEngine::DirectXCommon::GetInstance();
+
+	//KamataEngine::Sprite::PreDraw(dxCommon->GetCommandList());
+	    model_->Draw(worldTransform_, *camera_);
+
+	//KamataEngine::Sprite::PostDraw();
 
 }

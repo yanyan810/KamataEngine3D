@@ -117,6 +117,7 @@
     <ClCompile Include="EnemyState_Leave.cpp" />
     <ClCompile Include="Fade.cpp" />
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="Goal.cpp" />
     <ClCompile Include="HitEffect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="EnemyState_Leave.h" />
     <ClInclude Include="Fade.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="Goal.h" />
     <ClInclude Include="HitEffect.h" />
     <ClInclude Include="MapChipFiled.h" />
     <ClInclude Include="Matrix4x4_.h" />

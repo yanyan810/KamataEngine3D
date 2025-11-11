@@ -18,6 +18,10 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 
+	//worldTransform_.translation_.x += 20.0f;
+
+	  worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
+
 	input_ = Input::GetInstance();
 
 	SetState(new EnemyState_Approach());
@@ -104,17 +108,10 @@ void Enemy::FireReset() {
 
 }
 
-//何もしない
-
-void Enemy::OnCollision() {
-
-	
-}
-
 void Enemy::Update() {
 
 	// 　ですフラグの立った球を削除
-	bullets_.remove_if([](EnemyBullet* bullet) {
+	/*bullets_.remove_if([](EnemyBullet* bullet) {
 		if (bullet->IsDead()) {
 			delete bullet;
 			return true;
@@ -125,20 +122,22 @@ void Enemy::Update() {
 
 	if (state_) {
 		state_->Update(this);
-	}
+	}*/
 
-	for (EnemyBullet* bullet_ : bullets_) {
-		bullet_->Update(); // 弾の更新処理をここに入れる
-	}
+	//for (EnemyBullet* bullet_ : bullets_) {
+	//	bullet_->Update(); // 弾の更新処理をここに入れる
+	//}
 
 
 
-	timedCalls_.remove_if([](TimedeCall& timedCall) {
+	/*timedCalls_.remove_if([](TimedeCall& timedCall) {
 		timedCall.Update();
 		return timedCall.IsFinished();
-	});
+	});*/
 
-	ImGui::Text("Fire Timer: %d", fireTimer);
+//	ImGui::Text("Fire Timer: %d", fireTimer);
+
+	ImGui::Text("EnemyPos: (%.2f, %.2f, %.2f)", worldTransform_.translation_.x, worldTransform_.translation_.y, worldTransform_.translation_.z);
 
 }
 

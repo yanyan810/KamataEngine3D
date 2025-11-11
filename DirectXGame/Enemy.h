@@ -45,7 +45,7 @@ public:
 	KamataEngine::Vector3 GetWorldPosition();
 
 	//衝突を検知したら曜日出されるコールバック関数
-	void OnCollision();
+	//void OnCollision();
 
 	// 弾リストを取得
 	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
@@ -53,6 +53,11 @@ public:
 
 	KamataEngine::Vector3 GetWorldPosition() const override { return worldTransform_.translation_; }
 
+	//生存関係
+	  bool IsAlive() const { return alive_; }
+
+	// 衝突で倒れる想定（弾などで）
+	void OnCollision() override { alive_ = false; }
 
 private:
 	KamataEngine::WorldTransform worldTransform_;
@@ -73,4 +78,7 @@ private:
 	Player* player_ = nullptr;
 
 	KamataEngine::Model* bulletModel_ = nullptr; // 弾のモデル
+
+	//生存フラグ
+	   bool alive_ = true;
 };

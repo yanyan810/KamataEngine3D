@@ -21,13 +21,14 @@ void GameScene::Initialize() {
 
 	enemyModel_ = Model::CreateFromOBJ("enemy",true);
 	enemyTextureHandle_ = TextureManager::Load("uvChecker.png");
-	enemy_ = new Enemy();
+	//enemies_ = new Enemy();
 
 	Vector3 position = {20.0f, 0.0f, 150.0f};
 
-	enemy_->Initialize(enemyModel_, position, enemyTextureHandle_);
 
-		enemy_->SetPlayer(player_); // プレイヤーを敵に設定
+	//enemy_->Initialize(enemyModel_, position, enemyTextureHandle_);
+
+		//enemy_->SetPlayer(player_); // プレイヤーを敵に設定
 
 		skydome_ = new Skydome();
 	    modelSkydome_ = Model::CreateFromOBJ("skydome",true);
@@ -44,9 +45,31 @@ void GameScene::Initialize() {
 
 	viewProjection_.farZ = 10000.0f; // ← 天球がしっかり入るように大きくする
 	viewProjection_.UpdateMatrix();  // farZを変えたら必ず再計算
+	viewProjection_.translation_.z = -25.0f*3;
 
 	EnemyBullet::LoadModel();
 	PlayerBullet::LoadModel(); 
+
+	cameraController = new CameraController(); // ★ 生成を追加
+	cameraController->Initialize(&viewProjection_);
+	cameraController->SetTarget(player_);
+	cameraController->SetMovableArea({-10.0f, 10000.0f, -50.0f, 50.0f});
+	// ↑この値を prevCamArea_ と一致させておく
+	prevCamArea_ = {-10.0f, 10000.0f, -50.0f, 50.0f};
+
+	// フェード生成
+	fade_ = new Fade();
+	fade_->Initialize();
+
+	// プレイ開始はフェードなし（必要なら FadeIn してもOK）
+	// fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+	phase_ = GamePhase::kPlay;
+	finished_ = false;
+
+	// ライン式ゴール（X=1000）
+	goal_.InitializeLineX(500.0f);
+	goal_.SetOneShot(true);
 
 
 }
@@ -82,9 +105,12 @@ GameScene::~GameScene() {
 	delete collisionManager_;
 	collisionManager_ = nullptr;
 	delete skydome_;
+	delete cameraController;
+	cameraController = nullptr;
 	delete modelSkydome_;
+	delete fade_;
+	fade_ = nullptr;
 }
-
 
 void GameScene::CheckAllCollisions() {
 	// コリジョンマネージャのリストを一度クリア
@@ -100,15 +126,17 @@ void GameScene::CheckAllCollisions() {
 		}
 	}
 
-	// 敵と敵弾
-	if (enemy_) {
-		collisionManager_->AddCollider(enemy_);
-		for (EnemyBullet* bullet : enemy_->GetBullets()) {
-			if (bullet) {
+// 敵と敵弾
+	for (auto& e : enemies_) {
+		if (!e || !e->IsAlive())
+			continue;
+		collisionManager_->AddCollider(e.get());
+		for (EnemyBullet* bullet : e->GetBullets()) {
+			if (bullet)
 				collisionManager_->AddCollider(bullet);
-			}
 		}
 	}
+
 
 	// 総当たりチェックはマネージャに任せる
 	collisionManager_->CheckAllCollisions();
@@ -149,12 +177,89 @@ if (input_->TriggerKey(DIK_TAB)) {
 		viewProjection_.UpdateMatrix();
 	}
 
-		player_->Updata(); 
+	// ゴール未達成の通常プレイ中だけプレイヤー更新
+	if (phase_ == GamePhase::kPlay) {
+		player_->Updata();
 
-		if (enemy_) {
+		for (auto& e : enemies_) {
+			e->Update();
+		}
+
+		cameraController->Update();
+	}
+
+	enemies_.erase(std::remove_if(enemies_.begin(), enemies_.end(), [](const std::unique_ptr<Enemy>& e) { return !e || !e->IsAlive(); }), enemies_.end());
+
+	if (lockActive_ && !AnyEnemyAlive()) {
+		lockActive_ = false;
+		player_->DisableLockX();
+		cameraController->SetMovableArea({prevCamArea_.left, prevCamArea_.right, prevCamArea_.bottom, prevCamArea_.top});
+	}
+
+	// ===== ロック発火条件 =====
+	// 例）プレイヤーがロック区間に入った & まだエンゲージしてない → ロック開始＆敵を出すなど
+	const float px = player_->GetPosition().x;
+	if (!lockEngaged_ && px >= lockMinX_ && px <= lockMaxX_) {
+		lockEngaged_ = true;
+		lockActive_ = true;
+
+		player_->EnableLockX(lockMinX_, lockMaxX_);
+		cameraController->SetMovableArea({lockMinX_, lockMaxX_, prevCamArea_.bottom, prevCamArea_.top});
+
+		// ★ ここで N 体スポーン（例：5体）
+		SpawnWaveInLockArea(5);
+	}
+
+
+	// ===== ロック維持中：敵がいる限りロック =====
+
+	// 敵が全滅したら解除
+	if (lockActive_ && !AnyEnemyAlive()) {
+		lockActive_ = false;
+
+		// プレイヤー解除
+		player_->DisableLockX();
+
+		// カメラ範囲を元に戻す
+		cameraController->SetMovableArea({prevCamArea_.left, prevCamArea_.right, prevCamArea_.bottom, prevCamArea_.top});
+	}
+
+	// ゴール到達でフェードアウト開始（1.0秒はお好みで）
+	if (phase_ == GamePhase::kPlay && goal_.IsReached()) {
+		if (fade_)
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+		phase_ = GamePhase::kFadeOutOnGoal;
+		// ここでプレイヤー操作停止にしたいなら、フラグで Updata() を止める運用にしてOK
+	}
+
+
+
+	// フェード更新
+	if (fade_)
+		fade_->Update();
+
+	// フェードアウト完了でシーン終了
+	if (phase_ == GamePhase::kFadeOutOnGoal && fade_ && fade_->IsFinished()) {
+		finished_ = true;
+	}
+
+	// ゴール判定（Goal クラスを使用）
+	goal_.Update(*player_);
+	if (goal_.IsReached()) {
+		// ゴール時の処理：今はログだけ
+		OutputDebugStringA("[GameScene] ゴール！\n");
+
+		// ここで “プレイヤーの操作停止・フェード開始・シーン遷移” などを行う
+		// 例：
+		// fade_->Start(Fade::Status::FadeOut, 1.0f);
+		// phase_ = GamePhase::kFadeOutOnGoal;
+	}
+	
+
+	/*	if (enemy_) {
 
 		    enemy_->Update();
-	    }
+	    }*/
 
 		collisionManager_->Clear(); // 登録を毎フレームリセット
 
@@ -166,9 +271,12 @@ if (input_->TriggerKey(DIK_TAB)) {
 				    collisionManager_->AddCollider(bullet);
 		    }
 	    }
-	    if (enemy_) {
-		    collisionManager_->AddCollider(enemy_);
-		    for (auto* bullet : enemy_->GetBullets()) {
+
+	    for (auto& e : enemies_) {
+		    if (!e || !e->IsAlive())
+			    continue;
+		    collisionManager_->AddCollider(e.get());
+		    for (auto* bullet : e->GetBullets()) {
 			    if (bullet)
 				    collisionManager_->AddCollider(bullet);
 		    }
@@ -178,9 +286,9 @@ if (input_->TriggerKey(DIK_TAB)) {
 
 		skydome_->Update();
 
-	ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
+	/*ImGui::Text("Space: %s", input_->PushKey(DIK_SPACE) ? "Held" : "Not held");
 	    ImGui::Text("Space Trigger: %s", input_->TriggerKey(DIK_SPACE) ? "Triggered" : "Not triggered");
-	    ImGui::Text("DebugCamera Active: %s", isDebugCameraActive_ ? "True" : "False");
+	    ImGui::Text("DebugCamera Active: %s", isDebugCameraActive_ ? "True" : "False");*/
 }
 
 void GameScene::Draw() { 
@@ -194,15 +302,45 @@ void GameScene::Draw() {
 	player_->Draw(viewProjection_);
 
 	
-		if (enemy_) {
-
-		enemy_->Draw(viewProjection_);
+for (auto& e : enemies_) {
+		e->Draw(viewProjection_);
 	}
+
+
 
 		// 天球の描画
 	skydome_->Draw();
 
+	goal_.DrawDebug3D();
+
 	// モデルの描画後処理
 	Model::PostDraw();
 
+		if (fade_)
+		fade_->Draw();
+
+}
+
+void GameScene::SpawnWaveInLockArea(int count) {
+	// ロック区間内に等間隔で並べる例（Zは今のステージに合わせて）
+	float z = 0.0f; // 手前すぎ/奥すぎなら調整
+	float pad = (lockMaxX_ - lockMinX_) / (count + 1);
+
+	for (int i = 0; i < count; ++i) {
+		float x = lockMinX_ + pad * (i + 1);
+		KamataEngine::Vector3 pos{x, 0.0f, z};
+
+		auto e = std::make_unique<Enemy>();
+		e->Initialize(enemyModel_, pos, enemyTextureHandle_);
+		e->SetPlayer(player_);
+		enemies_.push_back(std::move(e));
+	}
+}
+
+bool GameScene::AnyEnemyAlive() const {
+	for (auto& e : enemies_) {
+		if (e && e->IsAlive())
+			return true;
+	}
+	return false;
 }

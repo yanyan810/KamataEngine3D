@@ -1,91 +1,96 @@
-#include <Windows.h>
-#include "KamataEngine.h"
 #include "GameScene.h"
+#include "KamataEngine.h"
 #include "TitleScene.h"
+#include <Windows.h>
 using namespace KamataEngine;
 
+#include <dxgidebug.h>
+#pragma comment(lib, "dxguid.lib")
 
+void ReportLiveObjects() {
+	IDXGIDebug1* pDebug = nullptr;
+	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug)))) {
+		pDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+		pDebug->Release();
+	}
+}
 
+enum class Scene { Title, Game };
 
-
-
-// Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	
-		// エンジンの初期化
 	KamataEngine::Initialize(L"LE2B_25_ミヤザワ_ハルヒ_AL3");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+	ImGuiManager* imgui = ImGuiManager::GetInstance();
 
-	// ImGuiManagerインスタンスの取得
-	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
-
-	// ゲームシーンのインスタンス生成
-	GameScene* gameScene = new GameScene();
-	// ゲームシーンの初期化
-	gameScene->Initialize();
-
-
-
-	/*#ifdef _DEBUG
-	scene = Scene::kGame;
-
-	gameScene = new GameScene();
-	gameScene->Initialize();
-#else
-	scene = Scene::kTitle;
-
-	titleScene = new TitleScene();
+	Scene scene = Scene::Title;
+	TitleScene* titleScene = new TitleScene();
 	titleScene->Initialize();
-#endif*/
-	
-	
 
-	//メインループ
+	GameScene* gameScene = nullptr;
+
 	while (true) {
-
-		// エンジンの更新
 		if (KamataEngine::Update()) {
 			break;
 		}
 
-		imguiManager->Begin();
+		imgui->Begin();
 
-		
-		gameScene->Update();
-	
-		
+		// ===== Update =====
+		switch (scene) {
+		case Scene::Title:
+			titleScene->Update();
+			if (titleScene->IsFinished()) {
+				delete titleScene;
+				titleScene = nullptr;
+				scene = Scene::Game;
+				gameScene = new GameScene();
+				gameScene->Initialize();
+			}
+			break;
+		case Scene::Game:
+			gameScene->Update();
+			if (gameScene->IsFinished()) {
+				delete gameScene;
+				gameScene = nullptr;
+				scene = Scene::Title;
+				titleScene = new TitleScene();
+				titleScene->Initialize();
+			}
+			break;
+		}
 
-		//ImGui受付終了
-		imguiManager->End();
+		imgui->End();
 
-		//描画開始
+		// ===== Draw =====
 		dxCommon->PreDraw();
 
-		gameScene->Draw();
+		switch (scene) {
+		case Scene::Title:
+			titleScene->Draw();
+			break;
+		case Scene::Game:
+			gameScene->Draw();
+			break;
+		}
 
-		//軸表示の描画
 		AxisIndicator::GetInstance()->Draw();
-
-		//ImGui描画
-		imguiManager->Draw();
-
-		//描画終了
+		imgui->Draw();
 		dxCommon->PostDraw();
 
 		if (KamataEngine::Input::GetInstance()->PushKey(DIK_ESCAPE)) {
-			return 0; // 左キーが押されたら終了
+			ReportLiveObjects();
+			return 0;
 		}
-
 	}
 
-	// ゲームシーンの解放
+	// 後始末（どちらか生きている方のみ解放）
+	delete titleScene;
+	titleScene = nullptr;
 	delete gameScene;
-	
-	//nullptrの代入
 	gameScene = nullptr;
 
+	ReportLiveObjects();
 	KamataEngine::Finalize();
-
 	return 0;
 }
