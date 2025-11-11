@@ -6,8 +6,12 @@ KamataEngine::Camera* HitEffect::camera_ = nullptr;
 
 HitEffect* HitEffect::Create(KamataEngine::Vector3& spawnPosition) {
 	HitEffect* instance = new HitEffect();
+#ifdef DEBUG
 	// newの失敗を検出
 	assert(instance);
+#endif // DEBUG
+
+
 	// インスタンスの初期化
 	instance->Initialize(spawnPosition);
 	// 初期化したインスタンスを返す

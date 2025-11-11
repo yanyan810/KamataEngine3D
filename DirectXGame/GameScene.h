@@ -37,6 +37,8 @@ public:
 	void SpawnWaveInLockArea(int count);
 	bool AnyEnemyAlive() const;
 
+	void ResolveHits();
+
 private:
 	enum class GamePhase { kPlay, kFadeOutOnGoal };
 

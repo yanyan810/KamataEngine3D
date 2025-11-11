@@ -59,6 +59,16 @@ public:
 	// 衝突で倒れる想定（弾などで）
 	void OnCollision() override { alive_ = false; }
 
+	AABB GetAABB() const {
+		const float r = GetRadius(); // いまは 1.0f を返している想定
+		const auto c = worldTransform_.translation_;
+		return AABB{
+		    {c.x - r, c.y - r, c.z - r},
+            {c.x + r, c.y + r, c.z + r}
+        };
+	}
+
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::Model* model_ = nullptr;

@@ -18,7 +18,7 @@ void ReportLiveObjects() {
 enum class Scene { Title, Game };
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	KamataEngine::Initialize(L"LE2B_25_ミヤザワ_ハルヒ_AL3");
+	KamataEngine::Initialize(L"タイトル");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	ImGuiManager* imgui = ImGuiManager::GetInstance();

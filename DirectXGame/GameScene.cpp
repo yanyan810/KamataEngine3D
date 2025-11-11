@@ -6,6 +6,17 @@
 
 using namespace KamataEngine;
 
+// ====== 共通ユーティリティ ======
+static inline bool IntersectAABB(const AABB& a, const AABB& b) {
+	return (a.min.x <= b.max.x && a.max.x >= b.min.x) && (a.min.y <= b.max.y && a.max.y >= b.min.y) && (a.min.z <= b.max.z && a.max.z >= b.min.z);
+}
+
+static inline bool IntersectSphereSphere(const Vector3& c1, float r1, const Vector3& c2, float r2) {
+	const Vector3 d = c1 - c2;
+	const float dist2 = d.x * d.x + d.y * d.y + d.z * d.z;
+	const float rr = (r1 + r2) * (r1 + r2);
+	return dist2 <= rr;
+}
 
 void GameScene::Initialize() {
 	// 初期化処理
@@ -18,6 +29,9 @@ void GameScene::Initialize() {
 	playerTextureHandle_ = TextureManager::Load("sample.png");
 	player_ = new Player();
 	player_->Initialize(playerModel, playerTextureHandle_);
+
+	//近接攻撃用
+	player_->LoadMell();
 
 	enemyModel_ = Model::CreateFromOBJ("enemy",true);
 	enemyTextureHandle_ = TextureManager::Load("uvChecker.png");
@@ -45,16 +59,31 @@ void GameScene::Initialize() {
 
 	viewProjection_.farZ = 10000.0f; // ← 天球がしっかり入るように大きくする
 	viewProjection_.UpdateMatrix();  // farZを変えたら必ず再計算
-	viewProjection_.translation_.z = -25.0f*3;
+	viewProjection_.translation_.z = -25.0f*1.0f;
 
 	EnemyBullet::LoadModel();
 	PlayerBullet::LoadModel(); 
 
-	cameraController = new CameraController(); // ★ 生成を追加
+	cameraController = new CameraController();
 	cameraController->Initialize(&viewProjection_);
 	cameraController->SetTarget(player_);
+
+	// === ステージ全体の可動範囲 ===
 	cameraController->SetMovableArea({-10.0f, 10000.0f, -50.0f, 50.0f});
-	// ↑この値を prevCamArea_ と一致させておく
+
+	// === 横スクロール設定 ===
+	cameraController->SetMode(CameraController::Mode::SideScrollByPlayer);
+
+	// プレイヤーが画面のこの位置まで来たらカメラが動く（左/右の“デッドゾーン”）
+	cameraController->SetSideWindow(-2.0f, +6.5f);
+
+	// プレイヤーが画面外に出ないようにする帯（画面中央±half）
+	cameraController->SetScrollWindowHalf(20.0f);
+
+	// 左方向への戻りスクロールを禁止（横スク風）
+	cameraController->AllowBackScroll(false);
+
+	// 可動範囲を保存（ロックエリア復帰などに使う想定なら）
 	prevCamArea_ = {-10.0f, 10000.0f, -50.0f, 50.0f};
 
 	// フェード生成
@@ -68,9 +97,8 @@ void GameScene::Initialize() {
 	finished_ = false;
 
 	// ライン式ゴール（X=1000）
-	goal_.InitializeLineX(500.0f);
+	goal_.InitializeLineX(150.0f);
 	goal_.SetOneShot(true);
-
 
 }
 //void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
@@ -96,6 +124,28 @@ void GameScene::Initialize() {
 //	}
 //}
 //
+
+void GameScene::ResolveHits() {
+	// --- 近接 vs 敵 ---
+	if (player_->IsMeleeActive()) {
+		AABB meleeAabb = player_->GetMeleeAABB();
+
+		for (auto& up : enemies_) {
+			Enemy* e = up.get();
+			if (!e || !e->IsAlive())
+				continue;
+
+			// AABB vs AABB（敵は半径rのAABBで近似）
+			if (IntersectAABB(meleeAabb, e->GetAABB())) {
+				// ★ ヒット
+				e->OnCollision();
+				// 必要なら多段防止で近接を終了させるAPIを用意して呼ぶ
+				// player_->ForceEndMelee();
+			}
+		}
+	}
+}
+
 
 GameScene::~GameScene() {
 	
@@ -185,15 +235,26 @@ if (input_->TriggerKey(DIK_TAB)) {
 			e->Update();
 		}
 
+		ResolveHits();
+
 		cameraController->Update();
 	}
 
-	enemies_.erase(std::remove_if(enemies_.begin(), enemies_.end(), [](const std::unique_ptr<Enemy>& e) { return !e || !e->IsAlive(); }), enemies_.end());
+	OutputDebugStringA(std::format("[GameScene] enemies_.size(before)={}\n", enemies_.size()).c_str());
 
+	enemies_.erase(std::remove_if(enemies_.begin(), enemies_.end(), [](const std::unique_ptr<Enemy>& e) { return !e || !e->IsAlive(); }), enemies_.end());
+	// 敵が全滅したら解除
 	if (lockActive_ && !AnyEnemyAlive()) {
 		lockActive_ = false;
+
 		player_->DisableLockX();
 		cameraController->SetMovableArea({prevCamArea_.left, prevCamArea_.right, prevCamArea_.bottom, prevCamArea_.top});
+
+		// ★ スクロール凍結を解除（これ必須）
+		cameraController->SetScrollFrozen(false);
+
+		// （任意）次のロックに備えて
+		// lockEngaged_ = false;
 	}
 
 	// ===== ロック発火条件 =====
@@ -203,26 +264,24 @@ if (input_->TriggerKey(DIK_TAB)) {
 		lockEngaged_ = true;
 		lockActive_ = true;
 
+		// プレイヤーも区間にロック
 		player_->EnableLockX(lockMinX_, lockMaxX_);
+
+		// カメラの可動範囲も区間に縛る（既存）
 		cameraController->SetMovableArea({lockMinX_, lockMaxX_, prevCamArea_.bottom, prevCamArea_.top});
 
-		// ★ ここで N 体スポーン（例：5体）
+		// ★ スクロール凍結 ON（カメラXを固定）
+		cameraController->SetScrollFrozen(true);
+
+		// ここで「停止中の可動半幅」をセット（= 画面端まで動かしたい幅）
+		// 値の目安: 通常 playHalfWidth_ より大きく。ステージスケールにより 10〜16 あたりから調整
+		cameraController->SetFrozenPlayerHalf(16.0f); // ←お好みで微調整
+
+		// 敵スポーン
 		SpawnWaveInLockArea(5);
 	}
 
-
 	// ===== ロック維持中：敵がいる限りロック =====
-
-	// 敵が全滅したら解除
-	if (lockActive_ && !AnyEnemyAlive()) {
-		lockActive_ = false;
-
-		// プレイヤー解除
-		player_->DisableLockX();
-
-		// カメラ範囲を元に戻す
-		cameraController->SetMovableArea({prevCamArea_.left, prevCamArea_.right, prevCamArea_.bottom, prevCamArea_.top});
-	}
 
 	// ゴール到達でフェードアウト開始（1.0秒はお好みで）
 	if (phase_ == GamePhase::kPlay && goal_.IsReached()) {
@@ -231,8 +290,6 @@ if (input_->TriggerKey(DIK_TAB)) {
 		phase_ = GamePhase::kFadeOutOnGoal;
 		// ここでプレイヤー操作停止にしたいなら、フラグで Updata() を止める運用にしてOK
 	}
-
-
 
 	// フェード更新
 	if (fade_)
@@ -306,8 +363,6 @@ for (auto& e : enemies_) {
 		e->Draw(viewProjection_);
 	}
 
-
-
 		// 天球の描画
 	skydome_->Draw();
 
@@ -322,20 +377,49 @@ for (auto& e : enemies_) {
 }
 
 void GameScene::SpawnWaveInLockArea(int count) {
-	// ロック区間内に等間隔で並べる例（Zは今のステージに合わせて）
-	float z = 0.0f; // 手前すぎ/奥すぎなら調整
-	float pad = (lockMaxX_ - lockMinX_) / (count + 1);
+	const float camX = viewProjection_.translation_.x; // カメラX
+	const float screenHalf = 20.0f;                    // SetScrollWindowHalf と同じ値
+	const float marginBase = 4.0f;                     // 画面外余白
+	const float eps = 0.25f;
+	const float lockWidth = (lockMaxX_ - lockMinX_);
+
+	// 画面外に出す“理想距離”をロック幅に合わせて安全に丸める
+	float desiredEdge = screenHalf + marginBase;      // 右の画面外までの理想距離
+	float maxEdgeWithinLock = 0.5f * lockWidth - eps; // ロック内で取れる最大距離
+	float edge = std::min<float>(desiredEdge, std::max<float>(maxEdgeWithinLock, 0.0f));
+	if (edge < 1.0f)
+		edge = 1.0f; // 極端に狭い時の保険
+
+	// Z=0 は避ける（プレイヤーZと重なりを防ぐ）
+	const float zOffsets[] = {-3.5f, -2.0f, +2.0f, +3.5f};
+
+	const Vector3 pc = player_->GetWorldPosition();
+	const float minGapX = 2.0f; // プレイヤーから最低X離隔（右側へ）
 
 	for (int i = 0; i < count; ++i) {
-		float x = lockMinX_ + pad * (i + 1);
-		KamataEngine::Vector3 pos{x, 0.0f, z};
+		// ★ 全部右から
+		float x = camX + edge; // まず“右の画面外”へ
+		x = std::clamp(x, lockMinX_ + eps, lockMaxX_ - eps);
+
+		// ★ 必ずプレイヤーの右側に最低距離を確保
+		if (x <= pc.x + minGapX) {
+			x = pc.x + minGapX;
+			x = std::clamp(x, lockMinX_ + eps, lockMaxX_ - eps);
+		}
+
+		float z = zOffsets[i % (int)std::size(zOffsets)];
+		// ついでにZが近すぎれば少し逃がす（任意）
+		if (std::abs(z - pc.z) < 0.5f)
+			z += (z <= pc.z ? -0.5f : +0.5f);
 
 		auto e = std::make_unique<Enemy>();
-		e->Initialize(enemyModel_, pos, enemyTextureHandle_);
+		e->Initialize(enemyModel_, {x, 0.0f, z}, enemyTextureHandle_);
 		e->SetPlayer(player_);
 		enemies_.push_back(std::move(e));
 	}
 }
+
+
 
 bool GameScene::AnyEnemyAlive() const {
 	for (auto& e : enemies_) {
